@@ -98,6 +98,7 @@ def synthesize():
         }), 500
 
 if __name__ == '__main__':
-    # Get port from environment variable (for Render compatibility)
     port = int(os.environ.get('PORT', 4005))
-    app.run(host='0.0.0.0', port=port)
+    host = os.environ.get('HOST', '0.0.0.0')
+    debug = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
+    app.run(host=host, port=port, debug=debug)

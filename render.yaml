@@ -7,14 +7,18 @@ services:
       pip install -r requirements.txt
       python -c "import nltk; nltk.download('punkt')"
       mkdir -p static/audio tmp
-    startCommand: gunicorn app:app --config gunicorn_config.py --bind 0.0.0.0:$PORT
+    startCommand: python -m gunicorn app:app --config gunicorn_config.py --bind "0.0.0.0:$PORT"
     envVars:
       - key: PYTHON_VERSION
         value: 3.10.0
       - key: PORT
         value: 4005
-      - key: MAX_WORKERS
+      - key: WEB_CONCURRENCY
         value: 4
+      - key: PYTHON_MAX_THREADS
+        value: 2
       - key: GUNICORN_TIMEOUT
         value: 300
+      - key: FLASK_DEBUG
+        value: false
     plan: standard
