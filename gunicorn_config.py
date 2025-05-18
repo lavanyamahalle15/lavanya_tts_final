@@ -1,6 +1,6 @@
 import os
 
-# Get port from environment variable with fallback to 4005
+# Get port from environment variable with fallback to 4005 (for local development only)
 port = int(os.environ.get('PORT', 4005))
 bind = f"0.0.0.0:{port}"
 

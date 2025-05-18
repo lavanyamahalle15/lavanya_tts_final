@@ -11,8 +11,6 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.10.0
-      - key: PORT
-        value: 4005
       - key: WEB_CONCURRENCY
         value: 4
       - key: PYTHON_MAX_THREADS
