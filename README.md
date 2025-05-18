@@ -184,3 +184,14 @@ For issues and questions:
 2. Verify your Python and package versions
 3. Ensure all model files are in place
 4. Check system requirements are met 
+
+
+
+
+
+
+from pd
+pkill -f "python app.py" && conda activate tts_env && python app.py
+conda create -n tts_env python=3.10 -y
+conda activate tts_env && pip install torch torchaudio espnet pandas num2words indic-unified-parser flask nltk
+python app.py
