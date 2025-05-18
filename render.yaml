@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: ekalipi-tts
+    env: python
+    buildCommand: |
+      pip install --upgrade pip
+      pip install -r requirements.txt
+      python -c "import nltk; nltk.download('punkt')"
+      mkdir -p static/audio tmp
+    startCommand: gunicorn app:app --config gunicorn_config.py --bind 0.0.0.0:$PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.0
+      - key: PORT
+        value: 4005
+      - key: MAX_WORKERS
+        value: 4
+      - key: GUNICORN_TIMEOUT
+        value: 300
+    plan: standard
