@@ -2,3 +2,5 @@
 Fastspeech2_HS/**/*.pth filter=lfs diff=lfs merge=lfs -text
 Fastspeech2_HS/**/model/model.pth filter=lfs diff=lfs merge=lfs -text
 Fastspeech2_HS/**/model/config.yaml filter=lfs diff=lfs merge=lfs -text
+Fastspeech2_HS/**/generator filter=lfs diff=lfs merge=lfs -text
+Fastspeech2_HS/**/model.pth filter=lfs diff=lfs merge=lfs -text
