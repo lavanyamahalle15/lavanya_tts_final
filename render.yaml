@@ -12,11 +12,14 @@ services:
       - key: PYTHON_VERSION
         value: 3.10.0
       - key: WEB_CONCURRENCY
-        value: 4
+        value: 1
       - key: PYTHON_MAX_THREADS
-        value: 2
+        value: 1
       - key: GUNICORN_TIMEOUT
         value: 300
       - key: FLASK_DEBUG
         value: false
+    healthCheckPath: /status
+    healthCheckTimeout: 60
+    initialDeployHook: echo "Waiting for models to load..."
     plan: standard
