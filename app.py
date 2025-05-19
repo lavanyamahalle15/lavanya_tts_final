@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, send_file, jsonify
+from flask import Flask, render_template, request, send_file, jsonify, make_response
 import os
 import subprocess
 import logging
+import traceback
 
 # Configure logging
 logging.basicConfig(
@@ -12,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__, static_url_path='/static')
 app.config['UPLOAD_FOLDER'] = 'static/audio'
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 
 # Ensure the upload folder exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
@@ -22,9 +24,7 @@ def check_fastspeech_dir():
     return os.path.exists('Fastspeech2_HS')
 
 def check_model_exists(language, gender):
-    if not check_fastspeech_dir():
-        logger.error("Fastspeech2_HS directory not found")
-        return False
+    """Check if the model file exists for the given language and gender."""
     model_path = os.path.join('Fastspeech2_HS', language, gender, 'model', 'model.pth')
     exists = os.path.exists(model_path)
     if not exists:
@@ -32,9 +32,7 @@ def check_model_exists(language, gender):
     return exists
 
 def check_phone_dict_exists(language):
-    if not check_fastspeech_dir():
-        logger.error("Fastspeech2_HS directory not found")
-        return False
+    """Check if the phone dictionary exists for the given language."""
     dict_path = os.path.join('Fastspeech2_HS', 'phone_dict', language)
     exists = os.path.exists(dict_path) and os.path.getsize(dict_path) > 0
     if not exists:
@@ -45,7 +43,11 @@ def check_phone_dict_exists(language):
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    response = make_response(render_template('index.html'))
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 @app.route('/status')
 def status():
@@ -65,35 +67,41 @@ def status():
 @app.route('/synthesize', methods=['POST'])
 def synthesize():
     try:
-        if not check_fastspeech_dir():
-            return jsonify({
-                'status': 'error',
-                'message': 'TTS models are not available. Please ensure Fastspeech2_HS directory is present.'
-            }), 503
-
-        text = request.form['text']
-        language = request.form['language']
-        gender = request.form['gender']
+        # Get form data
+        text = request.form.get('text')
+        language = request.form.get('language')
+        gender = request.form.get('gender')
         alpha = float(request.form.get('alpha', 1.0))
         
+        # Validate input
+        if not all([text, language, gender]):
+            return jsonify({
+                'status': 'error',
+                'message': 'Missing required parameters'
+            }), 400
+        
+        # Check if model and dictionary exist
         if not check_model_exists(language, gender):
             return jsonify({
                 'status': 'error',
                 'message': f'TTS model for {language} ({gender}) is not available.'
-            }), 503
+            }, 404)
             
         if not check_phone_dict_exists(language):
             return jsonify({
                 'status': 'error',
                 'message': f'Phone dictionary for {language} is not available.'
-            }), 503
+            }, 404)
         
+        # Generate output filename
         filename = f'output_{language}_{gender}.wav'
         output_file = os.path.join(os.path.abspath(app.config['UPLOAD_FOLDER']), filename)
         
+        # Get the absolute path to inference.py
         current_dir = os.path.dirname(os.path.abspath(__file__))
         inference_dir = os.path.join(current_dir, 'Fastspeech2_HS')
         
+        # Run inference.py with the provided parameters
         cmd = [
             'python',
             'inference.py',
@@ -104,34 +112,52 @@ def synthesize():
             '--output_file', output_file
         ]
         
+        # Run the command from the Fastspeech2_HS directory
         process = subprocess.run(
             cmd,
             check=True,
             cwd=inference_dir,
             capture_output=True,
-            text=True
+            text=True,
+            timeout=300  # 5 minute timeout
         )
         
         if process.returncode != 0:
-            logger.error(f"Inference failed: {process.stderr}")
             return jsonify({
                 'status': 'error',
                 'message': f'TTS generation failed: {process.stderr}'
             }), 500
         
-        return jsonify({
+        # Check if file was generated
+        if not os.path.exists(output_file):
+            return jsonify({
+                'status': 'error',
+                'message': 'Audio file generation failed'
+            }), 500
+            
+        # Return success response with cache control headers
+        response = jsonify({
             'status': 'success',
             'audio_path': f'/static/audio/{filename}'
         })
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+        return response
         
+    except subprocess.TimeoutExpired:
+        return jsonify({
+            'status': 'error',
+            'message': 'TTS generation timed out. Please try with shorter text.'
+        }), 504
     except subprocess.CalledProcessError as e:
-        logger.error(f"Subprocess error: {e.stderr}")
         return jsonify({
             'status': 'error',
             'message': f'TTS generation failed: {e.stderr}'
         }), 500
     except Exception as e:
-        logger.error(f"Unexpected error: {str(e)}")
+        print(f"Error in synthesize: {str(e)}")
+        traceback.print_exc()
         return jsonify({
             'status': 'error',
             'message': str(e)

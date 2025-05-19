@@ -7,20 +7,21 @@ services:
       pip install -r requirements.txt
       python -c "import nltk; nltk.download('punkt')"
       mkdir -p static/audio tmp
-    startCommand: gunicorn app:app --config gunicorn_config.py
+    startCommand: gunicorn app:app --config gunicorn_config.py --timeout 600 --workers 4 --threads 4
 
     envVars:
       - key: PYTHON_VERSION
         value: 3.10.0
-      - key: WEB_CONCURRENCY
-        value: 1
-      - key: PYTHON_MAX_THREADS
-        value: 1
+      - key: PORT
+        value: 4005
       - key: GUNICORN_TIMEOUT
-        value: 300
-      - key: FLASK_DEBUG
-        value: false
-    healthCheckPath: /status
-    healthCheckTimeout: 60
-    initialDeployHook: echo "Waiting for models to load..."
+        value: 600
+      - key: MAX_WORKERS
+        value: 4
+      - key: FLASK_ENV
+        value: production
+      - key: PYTHONUNBUFFERED
+        value: true
     plan: standard
+    healthCheckPath: /
+    healthCheckTimeout: 100
