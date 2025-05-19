@@ -145,7 +145,17 @@ if check_fastspeech_dir():
     logger.info("Fastspeech2_HS directory found")
 else:
     logger.warning("Fastspeech2_HS directory not found - models need to be uploaded")
+@app.errorhandler(Exception)
+def handle_exception(e):
+    # Log the error for debugging
+    logger.error(f"Unhandled Exception: {str(e)}", exc_info=True)
 
+    # Return a JSON response with error details and status code 500
+    response = {
+        'status': 'error',
+        'message': 'Internal Server Error: ' + str(e)
+    }
+    return jsonify(response), 500
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 4005))
     host = os.environ.get('HOST', '0.0.0.0')
