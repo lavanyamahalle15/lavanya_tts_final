@@ -7,7 +7,8 @@ services:
       pip install -r requirements.txt
       python -c "import nltk; nltk.download('punkt')"
       mkdir -p static/audio tmp
-    startCommand: python -m gunicorn app:app --config gunicorn_config.py --bind "0.0.0.0:$PORT"
+    startCommand: gunicorn app:app --config gunicorn_config.py
+
     envVars:
       - key: PYTHON_VERSION
         value: 3.10.0
