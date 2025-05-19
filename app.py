@@ -1,14 +1,7 @@
 from flask import Flask, render_template, request, send_file, jsonify
 import os
 import subprocess
-import requests
-import json
-import ssl
 import logging
-import sys
-import base64
-import io
-import time
 
 # Configure logging
 logging.basicConfig(
@@ -23,12 +16,12 @@ app.config['UPLOAD_FOLDER'] = 'static/audio'
 # Ensure the upload folder exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
+# --- Helper functions ---
+
 def check_fastspeech_dir():
-    """Check if Fastspeech2_HS directory exists"""
     return os.path.exists('Fastspeech2_HS')
 
 def check_model_exists(language, gender):
-    """Check if the model file exists for the given language and gender."""
     if not check_fastspeech_dir():
         logger.error("Fastspeech2_HS directory not found")
         return False
@@ -39,7 +32,6 @@ def check_model_exists(language, gender):
     return exists
 
 def check_phone_dict_exists(language):
-    """Check if the phone dictionary exists for the given language."""
     if not check_fastspeech_dir():
         logger.error("Fastspeech2_HS directory not found")
         return False
@@ -49,17 +41,14 @@ def check_phone_dict_exists(language):
         logger.error(f"Phone dictionary not found at {dict_path}")
     return exists
 
+# --- Routes ---
+
 @app.route('/')
-def health_check():
-    """Health check endpoint that doesn't depend on ML models"""
-    return jsonify({
-        "status": "healthy",
-        "models_available": check_fastspeech_dir()
-    }), 200
+def home():
+    return render_template('index.html')
 
 @app.route('/status')
 def status():
-    """Detailed status endpoint"""
     if not check_fastspeech_dir():
         return jsonify({
             "status": "warning",
@@ -76,20 +65,17 @@ def status():
 @app.route('/synthesize', methods=['POST'])
 def synthesize():
     try:
-        # First check if Fastspeech2_HS exists
         if not check_fastspeech_dir():
             return jsonify({
                 'status': 'error',
                 'message': 'TTS models are not available. Please ensure Fastspeech2_HS directory is present.'
             }), 503
 
-        # Get form data
         text = request.form['text']
         language = request.form['language']
         gender = request.form['gender']
         alpha = float(request.form.get('alpha', 1.0))
         
-        # Check if model and dictionary exist
         if not check_model_exists(language, gender):
             return jsonify({
                 'status': 'error',
@@ -102,15 +88,12 @@ def synthesize():
                 'message': f'Phone dictionary for {language} is not available.'
             }), 503
         
-        # Generate output filename
         filename = f'output_{language}_{gender}.wav'
         output_file = os.path.join(os.path.abspath(app.config['UPLOAD_FOLDER']), filename)
         
-        # Get the absolute path to inference.py
         current_dir = os.path.dirname(os.path.abspath(__file__))
         inference_dir = os.path.join(current_dir, 'Fastspeech2_HS')
         
-        # Run inference.py with the provided parameters
         cmd = [
             'python',
             'inference.py',
@@ -121,7 +104,6 @@ def synthesize():
             '--output_file', output_file
         ]
         
-        # Run the command from the Fastspeech2_HS directory
         process = subprocess.run(
             cmd,
             check=True,
@@ -137,7 +119,6 @@ def synthesize():
                 'message': f'TTS generation failed: {process.stderr}'
             }), 500
         
-        # Return success response
         return jsonify({
             'status': 'success',
             'audio_path': f'/static/audio/{filename}'
@@ -156,7 +137,8 @@ def synthesize():
             'message': str(e)
         }), 500
 
-# Log startup
+# --- Startup Logging ---
+
 logger.info("Starting Flask application...")
 logger.info("Checking for ML models...")
 if check_fastspeech_dir():
