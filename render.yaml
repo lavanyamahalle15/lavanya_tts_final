@@ -7,21 +7,18 @@ services:
       pip install -r requirements.txt
       python -c "import nltk; nltk.download('punkt')"
       mkdir -p static/audio tmp
-    startCommand: gunicorn app:app --config gunicorn_config.py --timeout 600 --workers 4 --threads 4
-
+    startCommand: gunicorn app:app --config gunicorn_config.py --timeout 120 --workers 1 --threads 2
     envVars:
       - key: PYTHON_VERSION
         value: 3.10.0
       - key: PORT
         value: 4005
       - key: GUNICORN_TIMEOUT
-        value: 600
-      - key: MAX_WORKERS
-        value: 4
-      - key: FLASK_ENV
-        value: production
+        value: 120
       - key: PYTHONUNBUFFERED
-        value: true
-    plan: standard
+        value: "true"
+      - key: MALLOC_TRIM_THRESHOLD_
+        value: 0  # Help manage memory usage
+    plan: free
     healthCheckPath: /
     healthCheckTimeout: 100
