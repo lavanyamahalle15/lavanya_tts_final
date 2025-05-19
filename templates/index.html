@@ -232,17 +232,36 @@
             const formData = new FormData(this);
             
             try {
+                // Add timeout using AbortController
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 25000); // 25 second timeout
+
                 const response = await fetch('/synthesize', {
                     method: 'POST',
-                    body: formData
+                    body: formData,
+                    signal: controller.signal,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
                 });
+
+                clearTimeout(timeoutId);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new TypeError("Oops, we haven't got JSON!");
+                }
                 
                 const data = await response.json();
                 
                 if (data.status === 'success') {
                     // Update audio player
                     const audioPlayer = document.getElementById('audioPlayer');
-                    audioPlayer.src = data.audio_path;
+                    audioPlayer.src = data.audio_path + '?t=' + new Date().getTime(); // Cache busting
                     
                     // Show audio container
                     document.getElementById('audioContainer').style.display = 'block';
@@ -257,9 +276,10 @@
                         document.body.removeChild(link);
                     };
                 } else {
-                    alert('Error generating speech: ' + data.message);
+                    throw new Error(data.message || 'Failed to generate speech');
                 }
             } catch (error) {
+                console.error('Error:', error);
                 alert('Error generating speech: ' + error.message);
             } finally {
                 // Hide loading spinner
@@ -268,4 +288,4 @@
         });
     </script>
 </body>
-</html> 
+</html>
