@@ -1,0 +1,18 @@
+name: ekalipi-tts
+services:
+  - name: web
+    environment_slug: python
+    github:
+      branch: main
+      deploy_on_push: true
+    build_command: |
+      pip install --upgrade pip
+      pip install -r requirements.txt
+      python -c "import nltk; nltk.download('punkt')"
+      mkdir -p static/audio tmp
+    run_command: gunicorn app:app --config gunicorn_config.py --timeout 120 --workers 1 --threads 4
+    instance_size_slug: basic-xxs
+    instance_count: 1
+    health_check:
+      http_path: /
+      timeout: 100
