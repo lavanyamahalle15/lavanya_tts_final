@@ -84,3 +84,51 @@ Long-Term Solutions:
 
 Conclusion:The "Unexpected end of JSON input" error is primarily due to resource constraints and timeout policies of Render’s free tier. The application performs well locally but fails under limited resource conditions. A combination of frontend improvements, backend optimization, and infrastructure upgrades is recommended to ensure consistent and reliable application behavior.
 
+Ah, you want a **prompt or commit message to instruct an AI agent (or teammate)** to make the required changes for deploying your Lavanya-TTS app on **DigitalOcean App Platform**.
+
+Here’s a clear and actionable **agent prompt** for that:
+
+---
+
+### 🤖 **Prompt for AI Agent or Teammate**
+
+> 🚀 **Migrate Lavanya-TTS app from Render to DigitalOcean App Platform.**
+> Please apply the following changes to make it compatible:
+>
+> 1. ✅ Create a `runtime.txt` file at the root with:
+>
+>    ```
+>    python-3.10.10
+>    ```
+>
+> 2. ✅ Add a `Procfile` with this content:
+>
+>    ```
+>    web: gunicorn app:app --config gunicorn_config.py --timeout 120 --workers 1 --threads 4
+>    ```
+>
+> 3. ✅ In `requirements.txt`, fix the PyTorch dependency:
+>
+>    * Replace this line (if present):
+>
+>      ```
+>      torch==2.0.1+cpu
+>      ```
+>    * With:
+>
+>      ```
+>      torch==2.0.1
+>      ```
+>    * Optionally add this above it if using CPU wheels:
+>
+>      ```
+>      --extra-index-url https://download.pytorch.org/whl/cpu
+>      ```
+>
+> 4. ✅ Remove any Render-specific configurations like `PYTHON_VERSION` from environment variables (they don't affect DigitalOcean App Platform).
+>
+> 5. ✅ Commit all changes and redeploy using the App Platform dashboard or CLI.
+
+---
+
+Let me know if you'd like this as a `.md` file or included in your Git repo!
