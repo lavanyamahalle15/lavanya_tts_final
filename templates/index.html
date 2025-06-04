@@ -247,13 +247,16 @@
 
                 clearTimeout(timeoutId);
                 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                if (response.status === 504) {
+                    throw new Error('The request timed out. Please try using shorter text or try again later.');
+                } else if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.message || `Request failed with status: ${response.status}`);
                 }
                 
                 const contentType = response.headers.get('content-type');
                 if (!contentType || !contentType.includes('application/json')) {
-                    throw new TypeError("Oops, we haven't got JSON!");
+                    throw new Error("Server responded with invalid content type. Please try again.");
                 }
                 
                 const data = await response.json();
@@ -267,23 +270,31 @@
                     document.getElementById('audioContainer').style.display = 'block';
                     
                     // Setup download button
-                    document.getElementById('downloadBtn').onclick = () => {
-                        const link = document.createElement('a');
-                        link.href = data.audio_path;
-                        link.download = 'generated_speech.wav';
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                    };
+                    const downloadBtn = document.getElementById('downloadBtn');
+                    if (downloadBtn) {
+                        downloadBtn.onclick = () => {
+                            const link = document.createElement('a');
+                            link.href = data.audio_path;
+                            link.download = 'generated_speech.wav';
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        };
+                    }
                 } else {
                     throw new Error(data.message || 'Failed to generate speech');
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('Error generating speech: ' + error.message);
+                let errorMessage = error.message;
+                if (error.message.includes('timed out')) {
+                    errorMessage = 'Request timed out. Please try shorter text or try again in a moment.';
+                }
+                alert('Error generating speech: ' + errorMessage);
             } finally {
-                // Hide loading spinner
+                // Hide loading spinner and re-enable form
                 document.querySelector('.loading').style.display = 'none';
+                document.getElementById('ttsForm').querySelector('button[type="submit"]').disabled = false;
             }
         });
     </script>

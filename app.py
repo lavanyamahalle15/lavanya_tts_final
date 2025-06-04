@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, jsonify, make_response, copy_current_request_context
+from flask_cors import CORS
 import os
 import subprocess
 import gc
@@ -14,6 +15,7 @@ logging.basicConfig(level=logging.INFO,
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__, static_url_path='/static')
+CORS(app, resources={r"/*": {"origins": "*"}})  # Enable CORS for all routes with any origin
 app.config['UPLOAD_FOLDER'] = 'static/audio'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 
@@ -26,6 +28,10 @@ executor = ThreadPoolExecutor(max_workers=2)
 def process_tts(text, language, gender, alpha, output_file, inference_dir):
     """Process TTS in a separate function that doesn't need request context"""
     try:
+        # Reduce text length for very long inputs to prevent timeouts
+        if len(text) > 200:
+            logger.warning("Long text detected, may cause timeout")
+            
         cmd = [
             'python',
             'inference.py',
@@ -42,7 +48,7 @@ def process_tts(text, language, gender, alpha, output_file, inference_dir):
             cwd=inference_dir,
             capture_output=True,
             text=True,
-            timeout=20  # Reduced timeout to ensure we respond within Render's limit
+            timeout=15  # Reduced timeout to 15 seconds to ensure we respond within gateway timeout
         )
         
         if process.returncode != 0:
@@ -57,9 +63,21 @@ def process_tts(text, language, gender, alpha, output_file, inference_dir):
             
     except subprocess.TimeoutExpired:
         logger.error("TTS process timed out")
-        raise TimeoutError("Speech generation took too long. Please try with shorter text.")
+        # Clean up any partial output file
+        if os.path.exists(output_file):
+            try:
+                os.remove(output_file)
+            except Exception as e:
+                logger.error(f"Failed to clean up partial output file: {str(e)}")
+        raise TimeoutError("Speech generation timed out. Please try with shorter text.")
     except Exception as e:
         logger.error(f"TTS processing error: {str(e)}")
+        # Clean up any partial output file
+        if os.path.exists(output_file):
+            try:
+                os.remove(output_file)
+            except Exception as cleanup_err:
+                logger.error(f"Failed to clean up partial output file: {str(cleanup_err)}")
         raise
 
 def with_timeout(seconds):
@@ -159,11 +177,24 @@ def home():
     response.headers['Expires'] = '0'
     return response
 
-@app.route('/synthesize', methods=['POST'])
+@app.route('/synthesize', methods=['POST', 'OPTIONS'])
 @with_timeout(25)  # Increased to 25 seconds but with internal safeguards
 def synthesize():
+    if request.method == 'OPTIONS':
+        response = make_response()
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Methods', 'POST')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+        return response
+    
+    # Add response headers for CORS
+    response = make_response()
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Methods', 'POST')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+    
     # The actual processing is handled in the decorator
-    pass
+    return response
 
 def cleanup_old_files(directory, max_age=3600):  # Clean files older than 1 hour
     try:
@@ -179,6 +210,12 @@ def cleanup_old_files(directory, max_age=3600):  # Clean files older than 1 hour
 
 # --- Startup Logging ---
 logger.info("Starting Flask application...")
+
+# Ensure required directories exist
+for directory in ['static/audio', 'tmp']:
+    os.makedirs(directory, exist_ok=True)
+    logger.info(f"Ensured directory exists: {directory}")
+
 logger.info("Checking for ML models...")
 if os.path.exists('Fastspeech2_HS'):
     logger.info("Fastspeech2_HS directory found")
