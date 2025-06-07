@@ -1,4 +1,10 @@
 # .gitattributes
-# Track Marathi male TTS model files
+# Track Marathi male model files
 Fastspeech2_HS/marathi/male/model/model.pth filter=lfs diff=lfs merge=lfs -text
 Fastspeech2_HS/marathi/male/model/config.yaml filter=lfs diff=lfs merge=lfs -text
+Fastspeech2_HS/marathi/male/model/energy_stats.npz filter=lfs diff=lfs merge=lfs -text
+Fastspeech2_HS/marathi/male/model/feats_stats.npz filter=lfs diff=lfs merge=lfs -text
+Fastspeech2_HS/marathi/male/model/pitch_stats.npz filter=lfs diff=lfs merge=lfs -text
+# Track phone dictionary for Marathi
+Fastspeech2_HS/phone_dict/marathi filter=lfs diff=lfs merge=lfs -text
+Fastspeech2_HS/marathi/male/model/* filter=lfs diff=lfs merge=lfs -text
