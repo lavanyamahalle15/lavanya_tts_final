@@ -16,12 +16,18 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__, static_url_path='/static')
 CORS(app)
-app.config['UPLOAD_FOLDER'] = 'static/audio'
+app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static/audio')
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  # Increased to 32MB for Standard plan
 app.config['MODEL_CACHE_SIZE'] = 4  # Cache size for models
 
-# Ensure directories exist
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+# Ensure directories exist with proper permissions
+try:
+    os.makedirs(app.config['UPLOAD_FOLDER'], mode=0o755, exist_ok=True)
+    # Make directory world-writable for Render environment
+    os.chmod(app.config['UPLOAD_FOLDER'], 0o777)
+    logger.info(f"Created directory with permissions: {app.config['UPLOAD_FOLDER']}")
+except Exception as e:
+    logger.error(f"Error creating directory: {str(e)}")
 
 # Create a thread pool with more workers for Standard plan
 executor = ThreadPoolExecutor(max_workers=4)
