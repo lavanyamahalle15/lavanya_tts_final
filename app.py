@@ -1,11 +1,11 @@
-from flask import Flask, render_template, request, jsonify, make_response, copy_current_request_context
+from flask import Flask, render_template, request, jsonify, make_response
 from flask_cors import CORS
 import os
 import subprocess
 import gc
 import logging
 import traceback
-from functools import wraps
+from functools import wraps, lru_cache
 import time
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
 
@@ -15,15 +15,33 @@ logging.basicConfig(level=logging.INFO,
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__, static_url_path='/static')
-CORS(app, resources={r"/*": {"origins": "*"}})  # Enable CORS for all routes with any origin
+CORS(app)
 app.config['UPLOAD_FOLDER'] = 'static/audio'
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  # Increased to 32MB for Standard plan
+app.config['MODEL_CACHE_SIZE'] = 4  # Cache size for models
 
-# Ensure the upload folder exists
+# Ensure directories exist
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-# Create a thread pool for running TTS tasks
-executor = ThreadPoolExecutor(max_workers=2)
+# Create a thread pool with more workers for Standard plan
+executor = ThreadPoolExecutor(max_workers=4)
+
+@lru_cache(maxsize=4)
+def load_model(language, gender):
+    # Your existing model loading code here
+    pass
+
+def cleanup_old_files(directory, max_age=7200):  # Increased to 2 hours
+    try:
+        current_time = time.time()
+        for filename in os.listdir(directory):
+            filepath = os.path.join(directory, filename)
+            if os.path.isfile(filepath):
+                file_age = current_time - os.path.getmtime(filepath)
+                if file_age > max_age:
+                    os.remove(filepath)
+    except Exception as e:
+        logger.error(f"Error cleaning up files: {str(e)}")
 
 def process_tts(text, language, gender, alpha, output_file, inference_dir):
     """Process TTS in a separate function that doesn't need request context"""
@@ -177,26 +195,88 @@ def home():
     response.headers['Expires'] = '0'
     return response
 
-@app.route('/synthesize', methods=['POST', 'OPTIONS'])
-@with_timeout(25)  # Increased to 25 seconds but with internal safeguards
+@app.route('/synthesize', methods=['POST'])
 def synthesize():
-    if request.method == 'OPTIONS':
-        response = make_response()
-        response.headers.add('Access-Control-Allow-Origin', '*')
-        response.headers.add('Access-Control-Allow-Methods', 'POST')
-        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
-        return response
-    
-    # Add response headers for CORS
-    response = make_response()
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    response.headers.add('Access-Control-Allow-Methods', 'POST')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
-    
-    # The actual processing is handled in the decorator
-    return response
+    try:
+        data = {
+            'text': request.form.get('text'),
+            'language': request.form.get('language'),
+            'gender': request.form.get('gender'),
+            'alpha': float(request.form.get('alpha', 1.0))
+        }
+        
+        if not all([data['text'], data['language'], data['gender']]):
+            return jsonify({
+                'status': 'error',
+                'message': 'Missing required parameters'
+            }), 400
+        
+        # Increased text length limit for Standard plan
+        if len(data['text']) > 1000:
+            return jsonify({
+                'status': 'error',
+                'message': 'Text length exceeds maximum limit of 1000 characters'
+            }), 400
 
-def cleanup_old_files(directory, max_age=3600):  # Clean files older than 1 hour
+        # Generate output filename with timestamp
+        timestamp = int(time.time())
+        filename = f"output_{data['language']}_{data['gender']}_{timestamp}.wav"
+        output_file = os.path.join(os.path.abspath(app.config['UPLOAD_FOLDER']), filename)
+
+        # Clean up old files
+        cleanup_old_files(app.config['UPLOAD_FOLDER'])
+
+        # Get the inference directory path
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        inference_dir = os.path.join(current_dir, 'Fastspeech2_HS')
+
+        # Submit the TTS processing to the executor
+        future = executor.submit(
+            process_tts,
+            data['text'],
+            data['language'],
+            data['gender'],
+            data['alpha'],
+            output_file,
+            inference_dir
+        )
+
+        try:
+            # Wait for the result with a timeout
+            success = future.result(timeout=25)  # Increased timeout for Standard plan
+
+            if success:
+                response = jsonify({
+                    'status': 'success',
+                    'audio_path': f'/static/audio/{filename}'
+                })
+                response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+                response.headers['Pragma'] = 'no-cache'
+                response.headers['Expires'] = '0'
+                return response
+            else:
+                return jsonify({
+                    'status': 'error',
+                    'message': 'TTS generation failed'
+                }), 500
+                
+        except FuturesTimeoutError:
+            logger.error("Request timed out")
+            return jsonify({
+                'status': 'error',
+                'message': 'Request timed out. Please try with shorter text or try again.'
+            }), 504
+            
+    except Exception as e:
+        logger.error(f"Error in synthesize: {str(e)}")
+        return jsonify({
+            'status': 'error',
+            'message': str(e)
+        }), 500
+    finally:
+        gc.collect()
+
+def cleanup_old_files(directory, max_age=7200):  # Increased to 2 hours
     try:
         current_time = time.time()
         for filename in os.listdir(directory):
