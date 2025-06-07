@@ -9,12 +9,14 @@ from hifigan.env import AttrDict
 import yaml
 from text_preprocess_for_inference import TTSDurAlignPreprocessor
 import logging
+import sys
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def ensure_absolute_path(path):
+    """Convert relative path to absolute path based on script location"""
     if not os.path.isabs(path):
         return os.path.abspath(os.path.join(os.path.dirname(__file__), path))
     return path
@@ -32,9 +34,9 @@ def main():
         device = "cuda" if torch.cuda.is_available() else "cpu"
         logger.info(f"Using device: {device}")
 
-        # Ensure output directory exists
+        # Ensure output directory exists with proper permissions
         output_dir = os.path.dirname(args.output_file)
-        os.makedirs(output_dir, exist_ok=True)
+        os.makedirs(output_dir, mode=0o777, exist_ok=True)
         
         # Load vocoder configuration
         vocoder_config = 'vocoder/config.json'
@@ -48,22 +50,21 @@ def main():
         if not os.path.exists(vocoder_generator):
             raise FileNotFoundError(f"Vocoder generator not found at {vocoder_generator}")
 
-        # Load configuration
+        logger.info("Loading configuration...")
         with open(vocoder_config) as f:
             data = f.read()
         json_config = yaml.safe_load(data)
         h = AttrDict(json_config)
 
-        # Load generator
+        logger.info("Loading generator...")
         generator = Generator(h)
-        state_dict_g = torch.load(vocoder_generator, device)
+        state_dict_g = torch.load(vocoder_generator, map_location=device)
         generator.load_state_dict(state_dict_g['generator'])
         generator.eval()
         generator.remove_weight_norm()
         generator = generator.to(device)
 
-        # Process text
-        logger.info(f"language {args.language}")
+        logger.info(f"Processing text for language: {args.language}")
         preprocessor = TTSDurAlignPreprocessor()
         preprocessed_text, phrases = preprocessor.preprocess(args.sample_text, args.language, args.gender)
         preprocessed_text = " ".join(preprocessed_text)
@@ -74,10 +75,10 @@ def main():
         if not os.path.exists(model_path):
             raise FileNotFoundError(f"Model not found at {model_path}")
 
+        logger.info("Loading Text2Speech model...")
         text2speech = Text2Speech(model_path)
         text2speech.device = device
 
-        # Generate speech
         logger.info("Generating speech...")
         with torch.no_grad():
             out = text2speech(preprocessed_text, decode_conf={"alpha": args.alpha})
@@ -88,16 +89,17 @@ def main():
             audio = audio * MAX_WAV_VALUE
             audio = audio.cpu().numpy().astype('int16')
 
-            # Save the audio file
+            # Save the audio file with proper permissions
             output_path = ensure_absolute_path(args.output_file)
             write(output_path, 22050, audio)
+            os.chmod(output_path, 0o666)  # Make file readable/writable
             logger.info(f"Audio saved to {output_path}")
 
         return 0
 
     except Exception as e:
         logger.error(f"Error generating speech: {str(e)}")
-        raise
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
