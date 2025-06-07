@@ -195,3 +195,5 @@ pkill -f "python app.py" && conda activate tts_env && python app.py
 conda create -n tts_env python=3.10 -y
 conda activate tts_env && pip install torch torchaudio espnet pandas num2words indic-unified-parser flask nltk
 python app.py
+
+cd Fastspeech2_HS && python inference.py --sample_text "नमस्कार" --language marathi --gender male --alpha 1.0 --output_file output_marathi.wav

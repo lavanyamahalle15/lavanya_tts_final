@@ -132,3 +132,160 @@ Here’s a clear and actionable **agent prompt** for that:
 ---
 
 Let me know if you'd like this as a `.md` file or included in your Git repo!
+GitHub Copilot
+Let me verify the Git LFS setup and make sure everything is properly configured:
+
+git lfs install && git lfs ls-files
+I see that Git LFS is initialized but let me check if the LFS objects are properly stored:
+
+git lfs status
+I can see that Git LFS is initialized but there might be no objects tracked yet. Let me check the actual files and ensure they're properly added:
+
+git add -f Fastspeech2_HS/marathi/male/model/model.pth Fastspeech2_HS/marathi/male/model/config.yaml && git lfs ls-files
+I can see that both files are now properly tracked by Git LFS:
+
+config.yaml (77b4c91fba)
+model.pth (91961837eb)
+Let's commit and push these changes to ensure they're properly stored in the repository:
+
+git commit -m "Add Marathi male model files to LFS" && git push origin main
+I see that the Git LFS files have been successfully added and pushed to the repository. The model files are now properly tracked:
+
+config.yaml is tracked with Git LFS
+model.pth is tracked with Git LFS
+Both files were committed and pushed to the main branch
+However, I notice in the commit output that the files were newly created rather than updated. This suggests they may not have been properly tracked before. Let me verify the LFS pointers are correct:
+
+git lfs pointer --check --file=Fastspeech2_HS/marathi/male/model/model.pth
+Let me verify if the LFS files are properly stored in the repository by checking their content:
+
+Continue to iterate?
+
+Copilot has been working on this problem for a while. It can continue to iterate, or you can send a new message to refine your prompt.
+
+Traceback (most recent call last):
+  File "/opt/render/project/src/.venv/bin/gunicorn", line 8, in <module>
+    sys.exit(run())
+  File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/app/wsgiapp.py", line 67, in run
+    WSGIApplication("%(prog)s [OPTIONS] [APP_MODULE]").run()
+  File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/app/base.py", line 236, in run
+    super().run()
+  File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/app/base.py", line 72, in run
+    Arbiter(self).run()
+  File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/arbiter.py", line 58, in __init__
+    self.setup(app)
+  File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/arbiter.py", line 118, in setup
+    self.app.wsgi()
+  File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/app/base.py", line 67, in wsgi
+    self.callable = self.load()
+  File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/app/wsgiapp.py", line 58, in load
+    return self.load_wsgiapp()
+  File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/app/wsgiapp.py", line 48, in load_wsgiapp
+    return util.import_app(self.app_uri)
+  File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/util.py", line 371, in import_app
+    mod = importlib.import_module(module)
+  File "/opt/render/project/python/Python-3.10.0/lib/python3.10/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 1050, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1027, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1006, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 688, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 883, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/render/project/src/app.py", line 2, in <module>
+    from flask_cors import CORS
+ModuleNotFoundError: No module named 'flask_cors'
+
+
+see the error - the Flask-CORS package is missing from your dependencies. Let me check your requirements.txt file and add it.
+
+
+
+
+
+
+
+Based on the error logs and your application's context, there are several possible reasons for these errors:
+
+Timeout Error:
+2025-06-04 11:45:41,944 - app - ERROR - TTS process timed out
+2025-06-04 11:45:41,944 - app - ERROR - Error in request processing: Speech generation timed out
+Your application is running on Render's free tier which has strict resource limitations
+The text-to-speech processing is taking too long and hitting Render's 30-second timeout limit
+Large text inputs may be causing the processing to exceed the timeout threshold
+404 Error for favicon.ico:
+werkzeug.exceptions.NotFound: 404 Not Found: The requested URL was not found on the server
+The browser is automatically requesting a favicon.ico file which doesn't exist in your application
+This is a minor issue and doesn't affect core functionality
+Resource Constraints:
+The FastSpeech2 and HiFi-GAN models are resource-intensive
+Render's free tier has limited CPU and memory resources
+Multiple concurrent requests might be overwhelming the available resources
+Possible solutions:
+
+Reduce the text input length limit (I see it's already set to 300 characters)
+Optimize model loading and inference
+Consider upgrading to a paid Render plan with more resources
+Implement better request queuing to handle concurrent requests
+Add caching for frequently requested text-to-speech conversions
+
+
+The Starter plan ($7/month) with 512MB RAM is not sufficient for your TTS application because:
+
+Memory Constraints:
+Your FastSpeech2 and HiFi-GAN models require more than 512MB RAM
+The error logs show continuous timeouts which indicate resource exhaustion
+ML models typically need at least 1-2GB RAM for efficient operation
+CPU Limitations:
+Starter plan only provides 0.5 shared CPU
+TTS processing is CPU-intensive
+The timeout errors suggest the processing can't complete within the time limit
+Recommendation: You should upgrade to the Standard Plan ($25/month) because:
+
+2GB RAM (4x more memory than Starter)
+1 dedicated CPU (2x more CPU power)
+No spinning down after inactivity
+Better concurrent request handling
+To make this work on the current Starter plan, you would need to:
+
+Significantly reduce model size (which would affect quality)
+Implement aggressive caching
+Reduce concurrent requests to absolute minimum
+Limit text length even further
+Would you like me to:
+
+Help you optimize for Starter plan (with compromises), or
+Help you configure for Standard plan upgrade?
+
+
+
+rror generating speech: Command '['python', 'inference.py', '--sample_text', 'नमस्कार, मी मराठी भाषेत बोलत आहे.', '--language', 'marathi', '--gender', 'male', '--alpha', '1.0', '--output_file', '/opt/render/project/src/static/audio/output_marathi_male_1749281187.wav']' returned non-zero exit status 1.
+
+GitHub Copilot
+I'll help investigate and fix the inference error. Let me gather some context about the inference process and error handling:
+
+Based on the error message and code analysis, I can see that the issue is likely related to missing or improperly configured model files. Let me verify a few things:
+
+ see the model files exist in the correct location. Let me check the content of the inference logs to see what might be causing the error:
+
+tail -n 50 Fastspeech2_HS/access.log
+tail -n 50 Fastspeech2_HS/access
+
+I see that the model files exist in the correct location, but let me also check the vocoder files since they're required for the TTS process:
+
+ls -l Fastspeech2_HS/vocoder/male/aryan/hifigan/
+From checking the files and logs, I can see that both the Marathi model files and vocoder files are present in their correct locations. Let me now check the actual Python error output that might be occurring during inference:
+
+Run command in terminal
+
+cd Fastspeech2_HS && python inference.py --sample_text "नमस्कार, मी मराठी भाषेत बोलत आहे." --language marathi --gender male --alpha 1.0
+Run the inference command directly to see the full error output
+
+
+I'll help troubleshoot this deployment error on Render. This appears to be a path-related issue and potentially a permissions issue on the Render server. Let me check the relevant files to understand how the paths are being handled:
+
+Based on the code analysis, I can identify several potential issues causing the error on Render:
+
+File Permissions: The error occurs when trying to write to /opt/render/project/src/static/audio/. Let me fix this by ensuring the directory has proper permissions and exists before running the inference.
+
+Path Handling: The code is using absolute paths which might be different on Render. I'll modify this to use relative paths.
