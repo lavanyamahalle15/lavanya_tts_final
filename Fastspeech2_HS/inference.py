@@ -15,6 +15,18 @@ import sys
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+def get_language_family(language):
+    """Determine the language family (Aryan or Dravidian) for a given language"""
+    aryan_languages = {'hindi', 'marathi', 'punjabi', 'gujarati', 'bengali', 'odia', 'assamese', 'bodo', 'urdu'}
+    dravidian_languages = {'tamil', 'telugu', 'kannada', 'malayalam'}
+    
+    if language.lower() in aryan_languages:
+        return 'aryan'
+    elif language.lower() in dravidian_languages:
+        return 'dravidian'
+    else:
+        return 'aryan'  # Default to aryan for other languages
+
 def ensure_absolute_path(path):
     """Convert relative path to absolute path based on script location"""
     if not os.path.isabs(path):
@@ -38,9 +50,13 @@ def main():
         output_dir = os.path.dirname(args.output_file)
         os.makedirs(output_dir, mode=0o777, exist_ok=True)
         
+        # Determine language family and set vocoder path
+        language_family = get_language_family(args.language)
+        logger.info(f"Using {language_family} vocoder for {args.language}")
+        
         # Load vocoder configuration
-        vocoder_config = 'vocoder/config.json'
-        vocoder_generator = f'vocoder/{args.language}/{args.gender}/generator'
+        vocoder_config = os.path.join('vocoder', args.gender, language_family, 'hifigan', 'config.json')
+        vocoder_generator = os.path.join('vocoder', args.gender, language_family, 'hifigan', 'generator')
         
         vocoder_config = ensure_absolute_path(vocoder_config)
         vocoder_generator = ensure_absolute_path(vocoder_generator)
@@ -66,7 +82,8 @@ def main():
 
         logger.info(f"Processing text for language: {args.language}")
         preprocessor = TTSDurAlignPreprocessor()
-        preprocessed_text, phrases = preprocessor.preprocess(args.sample_text, args.language, args.gender)
+        phone_dictionary = {}
+        preprocessed_text, phrases = preprocessor.preprocess(args.sample_text, args.language, args.gender, phone_dictionary)
         preprocessed_text = " ".join(preprocessed_text)
 
         # Load TTS model
@@ -97,6 +114,9 @@ def main():
 
         return 0
 
+    except FileNotFoundError as e:
+        logger.error(f"File not found error: {str(e)}")
+        return 1
     except Exception as e:
         logger.error(f"Error generating speech: {str(e)}")
         return 1
