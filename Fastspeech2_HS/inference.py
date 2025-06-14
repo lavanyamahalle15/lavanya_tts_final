@@ -115,7 +115,7 @@ def main():
         if not os.path.exists(model_file):
             raise FileNotFoundError(f"Model weights not found at {model_file}")
         # Patch config.yaml stats_file entries to absolute path using resolve_model_file
-        import yaml
+        
         with open(config_path, 'r') as f:
             config_data = yaml.safe_load(f)
         # Patch all *_normalize_conf: stats_file entries
