@@ -47,6 +47,16 @@ def get_model_path(*parts):
     base = os.environ.get("TTS_MODEL_ROOT", os.path.dirname(os.path.abspath(__file__)))
     return os.path.join(base, *parts)
 
+def resolve_model_file(config_path, filename):
+    """
+    Resolve a model/statistics file path using TTS_MODEL_ROOT and the config.yaml directory.
+    """
+    import os
+    model_root = os.environ.get("TTS_MODEL_ROOT", os.path.dirname(os.path.abspath(__file__)))
+    config_dir = os.path.dirname(config_path)
+    # Prefer TTS_MODEL_ROOT if set, else config_dir
+    return os.path.join(model_root, os.path.relpath(config_dir, model_root), filename)
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--sample_text', required=True)
@@ -104,7 +114,24 @@ def main():
             raise FileNotFoundError(f"Model config not found at {config_path}")
         if not os.path.exists(model_file):
             raise FileNotFoundError(f"Model weights not found at {model_file}")
-        text2speech = Text2Speech(config_path, model_file)
+        # Patch config.yaml stats_file entries to absolute path using resolve_model_file
+        import yaml
+        with open(config_path, 'r') as f:
+            config_data = yaml.safe_load(f)
+        # Patch all *_normalize_conf: stats_file entries
+        for key in ["normalize_conf", "energy_normalize_conf", "pitch_normalize_conf"]:
+            if key in config_data and "stats_file" in config_data[key]:
+                stats_file = config_data[key]["stats_file"]
+                abs_path = resolve_model_file(config_path, stats_file)
+                config_data[key]["stats_file"] = abs_path
+                print(f"Patched {key} stats_file: {abs_path}")
+        # Save patched config to a temp file
+        import tempfile
+        with tempfile.NamedTemporaryFile('w', delete=False, suffix='.yaml') as tmpf:
+            yaml.safe_dump(config_data, tmpf)
+            patched_config_path = tmpf.name
+        print(f"Using patched config: {patched_config_path}")
+        text2speech = Text2Speech(patched_config_path, model_file)
         text2speech.device = device
 
         # Generate speech
