@@ -97,19 +97,10 @@ def main():
         model_dir = ensure_absolute_path(model_dir)
         config_path = os.path.join(model_dir, "config.yaml")
         model_file = os.path.join(model_dir, "model.pth")
-        feats_stats_file = os.path.join(model_dir, "feats_stats.npz")
-        energy_stats_file = os.path.join(model_dir, "energy_stats.npz")
-        pitch_stats_file = os.path.join(model_dir, "pitch_stats.npz")
         if not os.path.exists(config_path):
             raise FileNotFoundError(f"Model config not found at {config_path}")
         if not os.path.exists(model_file):
             raise FileNotFoundError(f"Model weights not found at {model_file}")
-        if not os.path.exists(feats_stats_file):
-            raise FileNotFoundError(f"feats_stats.npz not found at {feats_stats_file}")
-        if not os.path.exists(energy_stats_file):
-            print(f"Warning: energy_stats.npz not found at {energy_stats_file}")
-        if not os.path.exists(pitch_stats_file):
-            print(f"Warning: pitch_stats.npz not found at {pitch_stats_file}")
         text2speech = Text2Speech(config_path, model_file)
         text2speech.device = device
 
