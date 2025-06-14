@@ -1,4 +1,3 @@
-import os
 import argparse
 import torch
 from espnet2.bin.tts_inference import Text2Speech
@@ -10,28 +9,39 @@ import yaml
 from text_preprocess_for_inference import TTSDurAlignPreprocessor
 import logging
 import sys
+import os
+
+# Ensure log directory exists and set correct log file path
+log_dir = os.path.dirname(os.path.abspath(__file__))
+log_file = os.path.join(log_dir, "access.log")
+os.makedirs(log_dir, exist_ok=True)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(log_file, mode='a'),
+    ]
+)
+sys.stdout = open(log_file, "a")
+sys.stderr = open(log_file, "a")
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def get_language_family(language):
-    """Determine the language family (Aryan or Dravidian) for a given language"""
-    aryan_languages = {'hindi', 'marathi', 'punjabi', 'gujarati', 'bengali', 'odia', 'assamese', 'bodo', 'urdu'}
-    dravidian_languages = {'tamil', 'telugu', 'kannada', 'malayalam'}
-    
-    if language.lower() in aryan_languages:
-        return 'aryan'
-    elif language.lower() in dravidian_languages:
-        return 'dravidian'
-    else:
-        return 'aryan'  # Default to aryan for other languages
-
 def ensure_absolute_path(path):
-    """Convert relative path to absolute path based on script location"""
     if not os.path.isabs(path):
         return os.path.abspath(os.path.join(os.path.dirname(__file__), path))
     return path
+
+def get_language_family(language):
+    aryan = {'hindi', 'marathi', 'punjabi', 'gujarati', 'bengali', 'odia', 'assamese', 'bodo', 'rajasthani', 'urdu'}
+    dravidian = {'tamil', 'telugu', 'kannada', 'malayalam'}
+    if language.lower() in aryan:
+        return 'aryan'
+    elif language.lower() in dravidian:
+        return 'dravidian'
+    else:
+        return 'aryan'  # default
 
 def main():
     parser = argparse.ArgumentParser()
@@ -46,56 +56,56 @@ def main():
         device = "cuda" if torch.cuda.is_available() else "cpu"
         logger.info(f"Using device: {device}")
 
-        # Ensure output directory exists with proper permissions
+        # Ensure output directory exists
         output_dir = os.path.dirname(args.output_file)
-        os.makedirs(output_dir, mode=0o777, exist_ok=True)
-        
-        # Determine language family and set vocoder path
-        language_family = get_language_family(args.language)
-        logger.info(f"Using {language_family} vocoder for {args.language}")
+        os.makedirs(output_dir, exist_ok=True)
         
         # Load vocoder configuration
+        language_family = get_language_family(args.language)
         vocoder_config = os.path.join('vocoder', args.gender, language_family, 'hifigan', 'config.json')
         vocoder_generator = os.path.join('vocoder', args.gender, language_family, 'hifigan', 'generator')
-        
         vocoder_config = ensure_absolute_path(vocoder_config)
         vocoder_generator = ensure_absolute_path(vocoder_generator)
-
         if not os.path.exists(vocoder_config):
             raise FileNotFoundError(f"Vocoder config not found at {vocoder_config}")
         if not os.path.exists(vocoder_generator):
             raise FileNotFoundError(f"Vocoder generator not found at {vocoder_generator}")
 
-        logger.info("Loading configuration...")
+        # Load configuration
         with open(vocoder_config) as f:
             data = f.read()
         json_config = yaml.safe_load(data)
         h = AttrDict(json_config)
 
-        logger.info("Loading generator...")
+        # Load generator
         generator = Generator(h)
-        state_dict_g = torch.load(vocoder_generator, map_location=device)
+        state_dict_g = torch.load(vocoder_generator, device)
         generator.load_state_dict(state_dict_g['generator'])
         generator.eval()
         generator.remove_weight_norm()
         generator = generator.to(device)
 
-        logger.info(f"Processing text for language: {args.language}")
+        # Process text
+        logger.info(f"language {args.language}")
         preprocessor = TTSDurAlignPreprocessor()
         phone_dictionary = {}
         preprocessed_text, phrases = preprocessor.preprocess(args.sample_text, args.language, args.gender, phone_dictionary)
         preprocessed_text = " ".join(preprocessed_text)
 
         # Load TTS model
-        model_path = f"{args.language}/{args.gender}/model"
-        model_path = ensure_absolute_path(model_path)
-        if not os.path.exists(model_path):
-            raise FileNotFoundError(f"Model not found at {model_path}")
+        model_dir = f"{args.language}/{args.gender}/model"
+        model_dir = ensure_absolute_path(model_dir)
+        config_path = os.path.join(model_dir, "config.yaml")
+        model_file = os.path.join(model_dir, "model.pth")
+        if not os.path.exists(config_path):
+            raise FileNotFoundError(f"Model config not found at {config_path}")
+        if not os.path.exists(model_file):
+            raise FileNotFoundError(f"Model weights not found at {model_file}")
 
-        logger.info("Loading Text2Speech model...")
-        text2speech = Text2Speech(model_path)
+        text2speech = Text2Speech(config_path, model_file)
         text2speech.device = device
 
+        # Generate speech
         logger.info("Generating speech...")
         with torch.no_grad():
             out = text2speech(preprocessed_text, decode_conf={"alpha": args.alpha})
@@ -106,20 +116,16 @@ def main():
             audio = audio * MAX_WAV_VALUE
             audio = audio.cpu().numpy().astype('int16')
 
-            # Save the audio file with proper permissions
+            # Save the audio file
             output_path = ensure_absolute_path(args.output_file)
             write(output_path, 22050, audio)
-            os.chmod(output_path, 0o666)  # Make file readable/writable
             logger.info(f"Audio saved to {output_path}")
 
         return 0
 
-    except FileNotFoundError as e:
-        logger.error(f"File not found error: {str(e)}")
-        return 1
     except Exception as e:
         logger.error(f"Error generating speech: {str(e)}")
-        return 1
+        raise
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

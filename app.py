@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, make_response, send_from_directory
+from flask import Flask, render_template, request, jsonify, make_response
 from flask_cors import CORS
 import os
 import subprocess
@@ -68,15 +68,15 @@ def process_tts(text, language, gender, alpha, output_file, inference_dir):
         
         process = subprocess.run(
             cmd,
-            check=True,
+            check=False,  # Don't raise immediately
             cwd=inference_dir,
             capture_output=True,
             text=True,
-            timeout=15  # Reduced timeout to 15 seconds to ensure we respond within gateway timeout
+            timeout=60  # Increased timeout for debugging
         )
         
         if process.returncode != 0:
-            logger.error(f"TTS process failed with output: {process.stdout}\nError: {process.stderr}")
+            logger.error(f"TTS process failed.\nSTDOUT: {process.stdout}\nSTDERR: {process.stderr}")
             raise subprocess.CalledProcessError(process.returncode, cmd, process.stdout, process.stderr)
             
         if not os.path.exists(output_file):
@@ -200,11 +200,6 @@ def home():
     response.headers['Pragma'] = 'no-cache'
     response.headers['Expires'] = '0'
     return response
-
-@app.route('/favicon.ico')
-def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static'),
-                             'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 @app.route('/synthesize', methods=['POST'])
 def synthesize():
