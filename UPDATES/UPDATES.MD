@@ -447,5 +447,527 @@ torchaudio==2.0.2
 
 
 
+after deployment errors::
+
+free plan
+
+Error generating speech: Command '['python', 'inference.py', '--sample_text', 'नमस्कार, मी मराठी भाषेत बोलत आहे.', '--language', 'marathi', '--gender', 'male', '--alpha', '1.0', '--output_file', '/opt/render/project/src/static/audio/output_marathi_male_1749906402.wav']' died with <Signals.SIGKILL: 9>.
+
+This error means your subprocess running python inference.py ... was killed by the operating system with signal 9 (SIGKILL).
+On Render and similar cloud platforms, this almost always happens because your process used too much memory (RAM) or CPU time, and the platform forcibly killed it to protect shared resources.
+TTS models (like ESPnet/FastSpeech2) are large and require a lot of RAM and CPU.
+Render free/standard plans have strict memory and CPU limits (often 512MB–2GB RAM).
+When your inference script loads the model and starts processing, it exceeds the allowed memory or CPU quota, so the OS sends SIGKILL to terminate it.
 
 
+standard plan 
+
+Error generating speech: Command '['python', 'inference.py', '--sample_text', 'नमस्का', '--language', 'marathi', '--gender', 'male', '--alpha', '1.0', '--output_file', '/opt/render/project/src/static/audio/output_marathi_male_1749906785.wav']' returned non-zero exit status 1.
+
+==> Available at your primary URL https://lavanya-tts-66ra.onrender.com
+==> 
+==> ///////////////////////////////////////////////////////////
+2025-06-14 13:13:21,983 - app - ERROR - TTS process failed.
+STDOUT: 
+STDERR: [nltk_data] Downloading package averaged_perceptron_tagger to
+[nltk_data]     /opt/render/nltk_data...
+[nltk_data]   Unzipping taggers/averaged_perceptron_tagger.zip.
+[nltk_data] Downloading package cmudict to /opt/render/nltk_data...
+[nltk_data]   Unzipping corpora/cmudict.zip.
+2025-06-14 13:13:21,984 - app - ERROR - TTS processing error: Command '['python', 'inference.py', '--sample_text', 'नमस्का', '--language', 'marathi', '--gender', 'male', '--alpha', '1.0', '--output_file', '/opt/render/project/src/static/audio/output_marathi_male_1749906785.wav']' returned non-zero exit status 1.
+2025-06-14 13:13:21,984 - app - ERROR - Error in synthesize: Command '['python', 'inference.py', '--sample_text', 'नमस्का', '--language', 'marathi', '--gender', 'male', '--alpha', '1.0', '--output_file', '/opt/render/project/src/static/audio/output_marathi_male_1749906785.wav']' returned non-zero exit status 1.
+10.214.28.149 - - [14/Jun/2025:13:13:21 +0000] "POST /synthesize HTTP/1.1" 500 313 "https://lavanya-tts-66ra.onrender.com/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+
+
+Your error message:
+
+```
+Error generating speech: Command '['python', 'inference.py', ...] returned non-zero exit status 1.
+```
+means that `inference.py` crashed with an error.  
+The logs show only NLTK downloading resources, but **no actual Python traceback** from your script.
+
+---
+
+## What does this mean?
+
+- **The process started, downloaded NLTK data, then failed.**
+- The actual error (Python exception or crash) is not shown in your log snippet.
+- The exit code `1` is a generic error, not a SIGKILL (so not a memory kill this time).
+
+---
+
+## Most Common Causes
+
+1. **Missing model/config files**  
+   - If your model files are not present on Render, `inference.py` will fail.
+2. **Wrong file paths**  
+   - Paths like `/opt/render/project/src/static/audio/...` must exist and be writable.
+3. **Missing dependencies**  
+   - If something is not installed, the script will crash.
+4. **Unhandled Exception in inference.py**  
+   - Any bug or missing input will cause exit code 1.
+
+---
+
+## How to Debug
+
+1. **Print the full error in `inference.py`**  
+   Make sure you log the full exception and traceback in `inference.py`:
+   ````python
+   import traceback
+   try:
+       # ...existing code...
+   except Exception as e:
+       print("Exception occurred:", e)
+       traceback.print_exc()
+       exit(1)
+   ````
+
+2. **Check for missing files**  
+   - Are your model files (`model.pth`, `config.yaml`, etc.) present in the deployed container?
+   - Are you using Git LFS? Render does not automatically pull LFS files unless you configure it.
+
+3. **Check file permissions**  
+   - Is `/opt/render/project/src/static/audio/` writable?
+
+4. **Check logs for Python traceback**  
+   - The real error will be in the Python traceback, not just the exit code.
+
+---
+
+## Next Steps
+
+- **Add full exception logging to `inference.py`** (see above).
+- **Deploy again and check the logs** for the actual Python error/traceback.
+- **Verify your model files are present** on Render (not just in your local repo).
+
+---
+
+### **Summary Table**
+
+| Problem                        | Solution                                      |
+|---------------------------------|-----------------------------------------------|
+| Model/config files missing      | Ensure they are uploaded (handle LFS!)        |
+| Wrong file paths                | Use correct, existing, writable paths         |
+| Missing dependencies            | Check/install all requirements                |
+| Unhandled Python exception      | Add traceback logging, check logs             |
+
+---
+
+**You must check the full Python traceback in your logs to know the real cause.**  
+If you post the full error/traceback from `inference.py`, I can give you a precise fix!
+
+
+
+
+
+
+even on the Pro plan (with 4GB RAM), the problem is likely not just memory. Here’s what you should do next:
+
+1. Print the Full Error Traceback
+Edit your inference.py to log the full exception and traceback.
+Add this at the top of your main block:
+
+import traceback
+
+try:
+    # ...your existing inference code...
+except Exception as e:
+    print("Exception occurred:", e)
+    traceback.print_exc()
+    exit(1)
+This will show the real cause of the crash in your Render logs.
+
+2. Check for Model/Data File Issues
+Are your model files (model.pth, config.yaml, etc.) actually present on Render?
+If you use Git LFS, you must run git lfs pull as part of your build process.
+If not, your code will fail when trying to load the model.
+How to check:
+
+Add a check in your code:
+import os
+print("Model file exists:", os.path.exists("/path/to/model.pth"))
+3. Check Output Directory
+Make sure the output directory exists and is writable:
+import os
+os.makedirs("/opt/render/project/src/static/audio/", exist_ok=True)
+4. Check for Dependency Issues
+Make sure all required Python packages are in your requirements.txt.
+If you use indic-nlp-library, indic-unified-parser, or other Indian language tools, add them.
+5. Check for Environment Differences
+Sometimes, a model trained on one machine (e.g., Mac M1) may not run on another (e.g., Linux/CPU) due to architecture or library differences.
+Make sure your model is compatible with the Render environment.
+6. Check Render Logs for Details
+After making the above changes, check the full logs for the actual Python error/traceback.
+Post the full traceback here if you need help interpreting it.
+Summary Table
+Issue	Solution
+Model files missing	Ensure files are present (handle LFS!)
+Output path not writable	Create directory before writing
+Dependency missing	Add to requirements.txt
+Architecture mismatch	Ensure model is CPU-compatible
+Error not visible	Print full Python traceback
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+PROGRESS::::::
+
+
+
+
+Add this to your buildCommand in render.yaml:
+
+buildCommand: |
+ * git lfs pull -(PREVIOUSLY NOT ADDED)
+   pip install --upgrade pip
+  pip install -r requirements.txt
+  python -c "import nltk; nltk.download('punkt')"
+  mkdir -p static/audio tmp
+
+
+How to view the log on Render:
+
+Go to your Render dashboard.
+Open the "Shell" or "Logs" tab for your service.
+Use the shell to run
+=======>>>>>>cat Fastspeech2_HS/access.log
+
+
+Your error is now clear from the log:
+=======>>>>>>>Your code (on Render) is trying to load the file feats_stats.npz for the Marathi male model.
+It is looking for it at feats_stats.npz (your Mac path), but on Render, this file does not exist at all.
+
+
+After you add and push the missing file(s), redeploy on Render. Your TTS should work!
+If you get a new error, check the log for the next missing file and repeat the process.
+
+
+
+hat this means:
+
+Your code on Render is trying to load feats_stats.npz using the absolute path from your Mac (/Users/kishorbapat/Desktop/lavanya_tts3/...), but this path does not exist on Render.
+Even if the file is present in your repository, it must be accessed using the correct path for the Render environment.
+How to Fix
+1. Use Relative Paths in Your Code
+Do not use absolute paths from your Mac.
+Instead, use relative paths or construct the path based on the current file location.
+
+Example fix in your code:
+
+import os
+
+# Instead of this (WRONG):
+# stats_file = "/Users/kishorbapat/Desktop/lavanya_tts3/Fastspeech2_HS/marathi/male/model/feats_stats.npz"
+
+# Use this (CORRECT):
+base_dir = os.path.dirname(os.path.abspath(__file__))
+stats_file = os.path.join(base_dir, "marathi/male/model/feats_stats.npz")
+Or, if you are already passing the path as a command-line argument, make sure it is a relative path like:
+
+Fastspeech2_HS/marathi/male/model/feats_stats.npz
+and not an absolute path from your Mac.
+
+2. Check That the File Exists on Render
+After deployment, use the Render shell to check:
+
+ls /opt/render/project/src/Fastspeech2_HS/marathi/male/model/
+You should see feats_stats.npz and your other model files.
+
+3. Summary Table
+Problem	Solution
+Using Mac absolute paths	Use relative or environment-based paths
+File not present on Render	Ensure file is tracked, pushed, and pulled
+Path mismatch in config/code	Update config/code to use correct paths
+In short:
+Update your code and/or config to use relative paths for all model files.
+Redeploy, and your TTS should work on Render.
+If you need help updating a specific code section, paste that section here!
+
+
+Your inference.py is now updated to always use paths relative to the script location, not absolute paths from your Mac. This ensures that all model and stats files will be found correctly on Render or any other deployment environment.
+
+What to do next:
+
+Push your code changes to GitHub.
+Redeploy your app on Render.
+Your TTS should now find all model files and work as expected.
+If you encounter any new errors, check the logs for missing files or other issues and let me know!
+
+
+Previously: Model files were sometimes referenced with absolute paths (from your Mac).
+Now (after the fix): Model files are referenced with relative paths, which is correct and portable.
+If you still see absolute paths in errors, check your config files (like config.yaml) for any hardcoded absolute paths and change them to relative paths.
+
+
+
+Your config file at
+config.yaml
+still uses absolute paths for the stats files, for example:
+energy_normalize_conf:
+  stats_file: /Users/kishorbapat/Desktop/lavanya_tts3/Fastspeech2_HS/marathi/male/model/energy_stats.npz
+...
+normalize_conf:
+  stats_file: /Users/kishorbapat/Desktop/lavanya_tts3/Fastspeech2_HS/marathi/male/model/feats_stats.npz
+...
+pitch_normalize_conf:
+  stats_file: /Users/kishorbapat/Desktop/lavanya_tts3/Fastspeech2_HS/marathi/male/model/pitch_stats.npz
+
+  This will NOT work on Render or any other machine except your Mac!
+
+  How to Fix
+Change all absolute paths to relative paths (relative to the config file location):
+
+energy_normalize_conf:
+  stats_file: energy_stats.npz
+...
+normalize_conf:
+  stats_file: feats_stats.npz
+...
+pitch_normalize_conf:
+  stats_file: pitch_stats.npz
+
+
+  Your config.yaml is now fixed to use only relative paths for all stats files. This will allow your TTS model to work correctly on Render and any other environment, as long as the required files are present in the same directory as the config.
+
+You can now commit and push this change, then redeploy your app on Render. If you encounter any new issues, check the logs and let me know!
+
+
+Error generating speech: Command '['python', 'inference.py', '--sample_text', 'नमस्कार, मी मराठी भाषेत बोलत आहे.', '--language', 'marathi', '--gender', 'male', '--alpha', '1.0', '--output_file', '/opt/render/project/src/static/audio/output_marathi_male_1749914385.wav']' returned non-zero exit status 1.
+
+
+Your Render logs show this error:
+
+FileNotFoundError: [Errno 2] No such file or directory: 'feats_stats.npz'
+
+Your code is looking for feats_stats.npz in the current working directory (not in the model directory).
+The file is not found because it is actually located in feats_stats.npz.
+
+
+Writing objects: 100% (7/7), 672 bytes | 672.00 KiB/s, done.
+Total 7 (delta 3), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas: 100% (3/3), completed with 3 local objects.
+To https://github.com/lavanyamahalle14/lavanya_tts.git
+   aeaa221..c815ed6  main -> main
+(tts_env) kishorbapat@Kishors-Mac-mini lavanya_tts3 % 
+GitHub Copilot
+Your Render logs show this error:
+
+FileNotFoundError: [Errno 2] No such file or directory: 'feats_stats.npz'
+This means:
+
+Your code is looking for feats_stats.npz in the current working directory (not in the model directory).
+The file is not found because it is actually located in feats_stats.npz.
+
+
+
+How to Fix
+1. Update config.yaml to use the correct relative path
+Edit your config.yaml and set:
+This ensures the model always looks in the correct subdirectory, no matter where the script is run from.
+
+
+Great! Here’s how to set up your TTS project to use an environment variable (TTS_MODEL_ROOT) for all model and stats file paths, making your code portable and robust.
+
+1. Update inference.py to use the env var
+I will:
+
+Add a helper function to resolve all model paths using TTS_MODEL_ROOT.
+Update all model file references to use this helper.
+2. Update config.yaml to use only filenames
+You should reference only the filename (e.g., feats_stats.npz) in your config, not a path.
+
+3. Set the env var in render.yaml
+I’ll add TTS_MODEL_ROOT to your render.yaml so it’s set on Render.
+
+I’ll make these changes now.
+
+inference.py+5-2
+Next, update your config files (such as Fastspeech2_HS/marathi/male/model/config.yaml) so that all stats_file entries use only the filename (e.g., feats_stats.npz) and not a path. This ensures the model will look for these files in the same directory as config.yaml, which is now resolved via the TTS_MODEL_ROOT environment variable in your code.
+
+Finally, add the following to your render.yaml under envVars to set the environment variable on Render:
+
+    envVars:
+      - key: TTS_MODEL_ROOT
+        value: /opt/render/project/src/Fastspeech2_HS
+      # ...other env vars...
+After these changes, your code will consistently and portably resolve all model and stats file paths using the environment variable, both locally and on Render. If you want, I can upda
+
+
+
+ESPnet will understand the path as long as the stats_file entries in your config.yaml are just filenames (e.g., feats_stats.npz) and those files are present in the same directory as config.yaml.
+
+ESPnet loads the stats_file path as given in the config. If you provide only the filename, it will look for that file in the current working directory or relative to where the config is loaded. If you launch your inference from the model directory or use code (like in your inference.py) that sets the working directory or resolves the path correctly, ESPnet will find the file.
+
+Your current approach—using only the filename in config.yaml and resolving the full path in your code using TTS_MODEL_ROOT or the config directory—is correct and portable. Just make sure your inference.py or the calling code loads the config and model from the correct directory, and the stats files are present there.
+
+Summary:
+Yes, ESPnet will work as long as the stats_file path is correct relative to where the config is loaded and the file exists at that location. Your current setup is correct for both local and cloud deployment.
+
+
+Here’s a summary of your current path handling setup:
+
+Your config.yaml files now use only the filename for stats_file (e.g., feats_stats.npz), not absolute or relative paths. This is correct.
+Your inference.py defines a resolve_model_file function that uses the TTS_MODEL_ROOT environment variable (or falls back to the script’s directory) to construct the full path to model/statistics files.
+Before loading the model, inference.py patches the config.yaml in memory so that all *_normalize_conf: stats_file entries are replaced with the correct absolute path using resolve_model_file.
+This ensures ESPnet will always receive the correct, absolute path to the stats files, regardless of the working directory or deployment environment.
+Your render.yaml sets TTS_MODEL_ROOT to /opt/render/project/src/Fastspeech2_HS, which matches the deployment structure on Render.
+Conclusion:
+Your path handling is now robust and portable. ESPnet will always get the correct file paths, and your deployment should work on both local and cloud environments as long as the required files are present in the expected directories.
+
+If you still encounter missing file errors, double-check that all required files (model.pth, feats_stats.npz, etc.) are present in the model directory on the server. If you need to update more config files or want to check another language/model, let me know!
+
+
+you said =
+If you still encounter missing file errors, double-check that all required files (model.pth, feats_stats.npz, etc.) are present in the model directory on the server. If you need to update more config files or want to check another language/model, let me know!
+
+but i have only track all files in marathi model only because i wnat to use that only 
+it is necessary to upload all files of all languages models to deploy app sucessfully??
+
+
+
+Writing objects: 100% (9/9), 972 bytes | 972.00 KiB/s, done.
+Total 9 (delta 5), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas: 100% (5/5), completed with 5 local objects.
+To https://github.com/lavanyamahalle14/lavanya_tts.git
+   f0a5494..dfc5775  main -> main
+(tts_env) kishorbapat@Kishors-Mac-mini lavanya_tts3 % 
+GitHub Copilot
+No, it is NOT necessary to upload all files for all language models to deploy your app successfully.
+
+You only need to upload (and track with Git LFS) the model files (model.pth, config.yaml, feats_stats.npz, etc.) for the specific language(s) and gender(s) you want to support in your deployed app. In your case, if you only want to use the Marathi model, you only need to ensure all required Marathi model files are present and correctly referenced.
+
+If you try to use another language/gender that is missing its model files, you will get a file not found error for that specific request, but the app will work for Marathi.
+
+Summary:
+
+Only upload the model files you actually want to use.
+The app will work for those; other languages will fail if their files are missing.
+This keeps your deployment smaller and avoids unnecessary Git LFS usage.
+
+
+
+But most likely, the file is either missing on the server or 
+
+
+clue============>>>>.the config is not patched to use the absolute path.
+# Patch config.yaml stats_file entries to absolute path using resolve_model_file
+import yaml
+with open(config_path, 'r') as f:
+    config_data = yaml.safe_load(f)
+for key in ["normalize_conf", "energy_normalize_conf", "pitch_normalize_conf"]:
+    if key in config_data and "stats_file" in config_data[key]:
+        stats_file = config_data[key]["stats_file"]
+        config_data[key]["stats_file"] = resolve_model_file(config_path, stats_file)
+# Save patched config to a temp file and use that for Text2Speech
+
+
+
+
+ender@srv-d100f7jipnbc738cmkng-77876bb95f-lhxmg:~/project/src$ ls -l /opt/render/project/src/Fastspeech2_HS/marathi/male/model/
+total 145244
+-rw-r--r-- 1 render render      5146 Jun 14 15:55 config.yaml
+-rw-r--r-- 1 render render       128 Jun 14 15:55 energy_stats.npz
+-rw-r--r-- 1 render render       129 Jun 14 15:55 feats_stats.npz
+-rw-r--r-- 1 render render       126 Jun 14 15:55 feats_type
+-rw-r--r-- 1 render render 148699639 Jun 14 15:55 model.pth
+-rw-r--r-- 1 render render       128 Jun 14 15:55 pitch_stats.npz
+render@srv-d100f7jipnbc738cmkng-77876bb95f-lhxmg:~/project/src$ 
+
+
+You should NOT use relative paths like feats_stats.npz in your config.yaml if you want your code to work reliably across different environments (local, Render, DigitalOcean, etc.)—unless your code always patches those paths to absolute paths before loading the model.
+
+Best practice for ESPnet and cloud deployment:
+
+In config.yaml: Use only the filename (e.g., feats_stats.npz), NOT a relative or absolute path.
+In your code (inference.py): Patch the config at runtime to replace the filename with the correct absolute path (using TTS_MODEL_ROOT or the config file’s directory) before passing it to ESPnet.
+
+ESPnet will look for feats_stats.npz in the current working directory if you use just the filename or a relative path, which may not be the model directory.
+By patching the config to use the absolute path at runtime, you guarantee ESPnet always finds the file, no matter where your script is run from.
+
+
+Summary:
+
+Do NOT use relative paths in config.yaml.
+Use only the filename in config.yaml.
+Always patch the config to use the absolute path in your code before loading the model.
+
+
+
+render@srv-d100f7jipnbc738cmkng-6c856479dc-fbbdc:~/project/src$ cat Fastspeech2_HS/access.log
+2025-06-14 17:00:20,616 - INFO - Using device: cpu
+2025-06-14 17:00:20,617 - ERROR - Error generating speech: local variable 'yaml' referenced before assignment
+Traceback (most recent call last):
+  File "/opt/render/project/src/Fastspeech2_HS/inference.py", line 162, in <module>
+    main()
+  File "/opt/render/project/src/Fastspeech2_HS/inference.py", line 91, in main
+    json_config = yaml.safe_load(data)
+UnboundLocalError: local variable 'yaml' referenced before assignment
+Exception occurred: local variable 'yaml' referenced before assignment
+render@srv-d100f7jipnbc738cmkng-6c856479dc-fbbdc:~/project/src$ 
+
+
+
+2025-06-14 17:16:24,138 - INFO - Using device: cpu
+2025-06-14 17:16:25,950 - INFO - language marathi
+2025-06-14 17:16:26,284 - INFO - config file: /tmp/tmpxvhbs00e.yaml
+2025-06-14 17:16:26,305 - INFO - Vocabulary size: 61
+2025-06-14 17:16:26,308 - ERROR - Error generating speech: Cannot load file containing pickled data when allow_pickle=False
+Traceback (most recent call last):
+  File "/opt/render/project/src/Fastspeech2_HS/inference.py", line 162, in <module>
+    main()
+  File "/opt/render/project/src/Fastspeech2_HS/inference.py", line 134, in main
+    text2speech = Text2Speech(patched_config_path, model_file)
+  File "/opt/render/project/src/.venv/lib/python3.10/site-packages/espnet2/bin/tts_inference.py", line 92, in __init__
+    model, train_args = TTSTask.build_model_from_file(
+  File "/opt/render/project/src/.venv/lib/python3.10/site-packages/espnet2/tasks/abs_task.py", line 2301, in build_model_from_file
+    model = cls.build_model(args)
+  File "/opt/render/project/src/.venv/lib/python3.10/site-packages/espnet2/tasks/tts.py", line 308, in build_model
+    normalize = normalize_class(**args.normalize_conf)
+  File "/opt/render/project/src/.venv/lib/python3.10/site-packages/espnet2/layers/global_mvn.py", line 40, in __init__
+    stats = np.load(stats_file)
+  File "/opt/render/project/src/.venv/lib/python3.10/site-packages/numpy/lib/npyio.py", line 438, in load
+    raise ValueError("Cannot load file containing pickled data "
+ValueError: Cannot load file containing pickled data when allow_pickle=False
+Removing weight norm...
+language marathi
+dict_file_path phone_dict/marathi
+word not in dict: []
+Patched normalize_conf stats_file: /opt/render/project/src/Fastspeech2_HS/marathi/male/model/feats_stats.npz
+Patched energy_normalize_conf stats_file: /opt/render/project/src/Fastspeech2_HS/marathi/male/model/energy_stats.npz
+Patched pitch_normalize_conf stats_file: /opt/render/project/src/Fastspeech2_HS/marathi/male/model/pitch_stats.npz
+Using patched config: /tmp/tmpxvhbs00e.yaml
+Exception occurred: Cannot load file containing pickled data when allow_pickle=False
+render@srv-d100f7jipnbc738cmkng-5995c4459d-nj684:~/project/src$ 
