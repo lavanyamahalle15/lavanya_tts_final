@@ -43,6 +43,10 @@ def get_language_family(language):
     else:
         return 'aryan'  # default
 
+def get_model_path(*parts):
+    base = os.environ.get("TTS_MODEL_ROOT", os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base, *parts)
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--sample_text', required=True)
@@ -93,8 +97,7 @@ def main():
         preprocessed_text = " ".join(preprocessed_text)
 
         # Load TTS model
-        model_dir = os.path.join(args.language, args.gender, "model")
-        model_dir = ensure_absolute_path(model_dir)
+        model_dir = get_model_path(args.language, args.gender, "model")
         config_path = os.path.join(model_dir, "config.yaml")
         model_file = os.path.join(model_dir, "model.pth")
         if not os.path.exists(config_path):
