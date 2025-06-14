@@ -29,9 +29,9 @@ sys.stderr = open(log_file, "a")
 logger = logging.getLogger(__name__)
 
 def ensure_absolute_path(path):
-    if not os.path.isabs(path):
-        return os.path.abspath(os.path.join(os.path.dirname(__file__), path))
-    return path
+    # Always resolve relative to the script's directory
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    return os.path.abspath(os.path.join(base_dir, path))
 
 def get_language_family(language):
     aryan = {'hindi', 'marathi', 'punjabi', 'gujarati', 'bengali', 'odia', 'assamese', 'bodo', 'rajasthani', 'urdu'}
@@ -93,15 +93,23 @@ def main():
         preprocessed_text = " ".join(preprocessed_text)
 
         # Load TTS model
-        model_dir = f"{args.language}/{args.gender}/model"
+        model_dir = os.path.join(args.language, args.gender, "model")
         model_dir = ensure_absolute_path(model_dir)
         config_path = os.path.join(model_dir, "config.yaml")
         model_file = os.path.join(model_dir, "model.pth")
+        feats_stats_file = os.path.join(model_dir, "feats_stats.npz")
+        energy_stats_file = os.path.join(model_dir, "energy_stats.npz")
+        pitch_stats_file = os.path.join(model_dir, "pitch_stats.npz")
         if not os.path.exists(config_path):
             raise FileNotFoundError(f"Model config not found at {config_path}")
         if not os.path.exists(model_file):
             raise FileNotFoundError(f"Model weights not found at {model_file}")
-
+        if not os.path.exists(feats_stats_file):
+            raise FileNotFoundError(f"feats_stats.npz not found at {feats_stats_file}")
+        if not os.path.exists(energy_stats_file):
+            print(f"Warning: energy_stats.npz not found at {energy_stats_file}")
+        if not os.path.exists(pitch_stats_file):
+            print(f"Warning: pitch_stats.npz not found at {pitch_stats_file}")
         text2speech = Text2Speech(config_path, model_file)
         text2speech.device = device
 
