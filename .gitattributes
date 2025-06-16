@@ -2,5 +2,5 @@
 # Track Marathi male TTS model files
 Fastspeech2_HS/marathi/male/model/model.pth filter=lfs diff=lfs merge=lfs -text
 Fastspeech2_HS/marathi/male/model/config.yaml filter=lfs diff=lfs merge=lfs -text
-Fastspeech2_HS/marathi/male/model/*.pth filter=lfs diff=lfs merge=lfs -text
-Fastspeech2_HS/marathi/male/model/*.npz filter=lfs diff=lfs merge=lfs -text
+# Fastspeech2_HS/marathi/male/model/*.pth filter=lfs diff=lfs merge=lfs -text
+
