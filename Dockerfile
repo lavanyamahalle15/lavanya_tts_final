@@ -15,7 +15,7 @@ RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 # Pull LFS files (model weights, stats, etc.)
-RUN git lfs pull
+
 
 # Expose port (change if your app uses a different port)
 EXPOSE 8000
