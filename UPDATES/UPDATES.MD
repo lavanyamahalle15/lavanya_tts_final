@@ -1737,6 +1737,22 @@ Yes, **you should follow the same process for English (or any new language/gende
 git add .gitattributes
 git add Fastspeech2_HS/english/male/model/model.pth
 git commit -m "Track English male model.pth with LFS"
+
+Fastspeech2_HS/hindi/male/model/model.pth
+Fastspeech2_HS/hindi/male/model/config.yaml
+Fastspeech2_HS/hindi/male/model/feats_stats.npz
+Fastspeech2_HS/hindi/male/model/energy_stats.npz
+Fastspeech2_HS/hindi/male/model/pitch_stats.npz
+
+git lfs ls-files
+
+git add .gitattributes
+git add Fastspeech2_HS/english/male/model/model.pth
+git add Fastspeech2_HS/english/male/model/config.yaml
+git add Fastspeech2_HS/hindi/male/model/model.pth
+git add Fastspeech2_HS/hindi/male/model/config.yaml
+git commit -m "Track English and Hindi male model files with Git LFS"
+git push origin main
 4. **config.yaml**
    - Use only the filename for `stats_file` entries (e.g., `feats_stats.npz`), not a path.
 
@@ -1751,6 +1767,11 @@ chmod 777 static/audio
    - Update your backend to select the correct model directory for English male, just as you do for Marathi male.
 
 7. **Test**
+git add Fastspeech2_HS/english/male/model/feats_stats.npz
+git add Fastspeech2_HS/english/male/model/energy_stats.npz
+git add Fastspeech2_HS/english/male/model/pitch_stats.npz
+git commit -m "Re-save English male stats files as plain NumPy arrays"
+git push origin main
    - After deployment, check:
      - File hashes match between local and container.
      - `np.load(..., allow_pickle=False)` works for all `.npz` files.
@@ -1759,17 +1780,16 @@ chmod 777 static/audio
 --- 
    
 On your local machine:
-md5sum Fastspeech2_HS/marathi/male/model/feats_stats.npz
+md5sum Fastspeech2_HS/hindi/male/model/feats_stats.npz
 In your Docker container (after deployment):
-md5sum /app/Fastspeech2_HS/marathi/male/model/feats_stats.npz
+md5sum /app/Fastspeech2_HS/hindi/male/model/feats_stats.npz
 
 
 now same 
 
 
 now check for erro logs
-python3 -c "import numpy as np; np.load('/app/Fastspeech2_HS/marathi/male/model/feats_stats.npz', allow_pickle=False)"
-
+python3 -c "import numpy as np; np.load('/app/Fastspeech2_HS/english/male/model/feats_stats.npz', allow_pickle=False)"
 this is also clear
 
 
@@ -1823,3 +1843,63 @@ pitch_normalize_conf:
 - This will fix the TypeError and allow your code to patch the config correctly.
 
 Would you like me to fix this in your config.yaml?
+
+
+
+This log shows that your app sometimes works (serves audio files successfully), but other times you get a Request timed out error.
+
+Why does this happen?
+
+Your TTS inference is sometimes slow (due to model loading, CPU/RAM limits, or long input).
+If a request takes longer than the platform’s timeout (often 30–60 seconds on Render), it fails with a timeout error.
+When the server is less busy or the input is short, it works.
+How to Improve Reliability
+Load models once at startup (not per request) to reduce latency.
+Limit input text length in your frontend/backend.
+Upgrade your Render plan for more CPU/RAM and longer timeouts.
+Optimize your code (batch requests, use async, etc.).
+Consider background jobs for long-running inference and let the frontend poll for results.
+Summary:
+
+Occasional timeouts are normal on resource-limited plans or with heavy models.
+Optimizing model loading and upgrading your plan will help.
+
+
+
+
+
+Correct—based on your current code, only the vocoders are preloaded at startup (in the vocoders dictionary).
+Your FastSpeech2 (TTS) models are still being loaded inside the request handler, which means they are loaded on every request, causing extra latency and possible timeout
+
+
+How to Fix
+To preload TTS models as well, do this:
+
+In your setup_app() function, also load and store the FastSpeech2 models in a global dictionary (e.g., tts_models), just like you do for vocoders.
+In your request handler, use the preloaded TTS model from tts_models[gender][language] instead of loading it per request.
+def setup_app():
+    # ...existing code...
+    vocoders = {}
+    tts_models = {}
+    for gender in genders:
+        vocoders[gender] = {}
+        tts_models[gender] = {}
+        for language, text in languages.items():
+            # ...existing code for vocoder...
+            if all(os.path.exists(f) for f in [model_pth, config_yaml, feats_stats, energy_stats, pitch_stats]):
+                vocoders[gender][language] = load_hifigan_vocoder(language, gender, device)
+                tts_models[gender][language] = load_fastspeech2_model(language, gender, device)
+    return vocoders, tts_models
+
+vocoders, tts_models = setup_app()
+
+def tts():
+    # ...existing code...
+    vocoder = vocoders[gender][language]
+    tts_model = tts_models[gender][language]
+    # Use tts_model for inference
+
+
+Only vocoders are preloaded right now.
+For best performance, preload both vocoders and TTS models at startup.
+This will make your app much faster and more reliable.

@@ -1,199 +1,216 @@
-# Multilingual Text-to-Speech (TTS) System Setup Guide
+# Multilingual Text-to-Speech (TTS) System: Full Setup & Deployment Guide
 
-This guide will help you set up the Multilingual TTS system with FastSpeech2 and HiFi-GAN support.
+This guide provides a comprehensive, step-by-step process for setting up, developing, and deploying the Lavanya-TTS system (FastSpeech2 + HiFi-GAN) on local and cloud platforms (Render, DigitalOcean, Docker, etc.).
 
-## System Requirements
+---
 
-- Operating System: Windows/Linux/MacOS
-- Python version: 3.10 (recommended)
-- GPU: CUDA-compatible GPU (optional, for faster processing)
-- Storage: At least 10GB free space (for models and dependencies)
+## 1. System Requirements
+- **OS:** Windows, Linux, or macOS
+- **Python:** 3.10 (recommended)
+- **RAM:** 2GB+ (4GB+ for production)
+- **Storage:** 10GB+ (for models and dependencies)
+- **(Optional) GPU:** CUDA-compatible for faster inference
 
-## Step-by-Step Setup Guide
+---
 
-### 1. Set up Python Environment
+## 2. Environment Setup
 
-First, install Conda if you haven't already. Download from: https://docs.conda.io/en/latest/miniconda.html
-
+### 2.1. Create Python Environment
 ```bash
-# Create a new conda environment
-conda create -n tts_env python=3.10
+conda create -n tts_env python=3.10 -y
 conda activate tts_env
 ```
 
-### 2. Install Core Dependencies
-
+### 2.2. Install Core Dependencies
 ```bash
-# Install PyTorch and TorchAudio
-conda install pytorch torchaudio -c pytorch
-
-# Install basic requirements
-pip install flask==3.1.0
-pip install numpy>=2.2.5
-pip install scipy>=1.15.3
-pip install PyYAML>=6.0.2
+# PyTorch and TorchAudio (CPU)
+pip install torch==2.0.1 torchaudio==2.0.2
+# Flask and Gunicorn
+pip install flask==3.1.0 gunicorn flask_cors
+# ESPnet and TTS dependencies
+pip install espnet espnet2 soundfile
+# Language and utility packages
+pip install numpy scipy PyYAML indic-num2words nltk indic-unified-parser pandas matplotlib requests
 ```
 
-### 3. Install TTS-Specific Dependencies
+---
 
+## 3. Project Download & Directory Structure
+
+### 3.1. Clone the Repository
 ```bash
-# Install ESPnet and related packages
-pip install espnet
-pip install espnet2
-pip install soundfile
-
-# Install language processing tools
-pip install indic-num2words
-pip install nltk
-pip install indic-unified-parser
-pip install pandas
-
-# Install utilities
-pip install matplotlib
-pip install requests
-pip install gunicorn  # For production deployment
-```
-
-### 4. Download and Setup Project
-
-```bash
-# Clone the repository (if using git)
 git clone [your-repository-url]
-cd [project-directory]
-
-# Or download and extract the project files to your desired location
+cd lavanya_tts3
 ```
 
-### 5. Directory Structure Setup
-
-Ensure you have the following directory structure:
+### 3.2. Directory Structure
 ```
 .
-├── app.py                  # Flask application
-├── Fastspeech2_HS/        # Core TTS engine
-│   ├── inference.py       # TTS inference script
-│   ├── phone_dict/       # Phone dictionaries for all languages
-│   └── [language]/       # Language-specific models
+├── app.py
+├── Dockerfile
+├── gunicorn_config.py
+├── Procfile
+├── requirements.txt
+├── runtime.txt
+├── render.yaml
+├── Fastspeech2_HS/
+│   ├── app.py
+│   ├── inference.py
+│   ├── phone_dict/
+│   ├── [language]/[gender]/model/
+│   │   ├── model.pth
+│   │   ├── config.yaml
+│   │   ├── feats_stats.npz
+│   │   ├── energy_stats.npz
+│   │   └── pitch_stats.npz
+│   └── ...
 ├── static/
-│   └── audio/            # Generated audio files
+│   └── audio/
 └── templates/
-    └── index.html        # Web interface
+    └── index.html
 ```
 
-### 6. Model Setup
+---
 
-1. Create necessary directories:
+## 4. Model Files & Git LFS
+
+### 4.1. Large Files (model.pth, config.yaml if large)
+- Track with Git LFS:
 ```bash
-mkdir -p static/audio
+git lfs track "Fastspeech2_HS/[language]/[gender]/model/model.pth"
+git add .gitattributes
+git add -f Fastspeech2_HS/[language]/[gender]/model/model.pth
 ```
 
-2. Ensure model files are in place:
-- Phone dictionaries should be in `Fastspeech2_HS/phone_dict/[language]`
-- Model files should be in `Fastspeech2_HS/[language]/[gender]/model/model.pth`
-
-### 7. Running the Application
-
+### 4.2. Small Files (feats_stats.npz, energy_stats.npz, pitch_stats.npz)
+- Add as regular files:
 ```bash
-# Activate the environment (if not already activated)
+git add Fastspeech2_HS/[language]/[gender]/model/feats_stats.npz
+# ...repeat for all .npz files...
+```
+
+### 4.3. Commit and Push
+```bash
+git commit -m "Add model files for [language] [gender]"
+git push origin main
+```
+
+---
+
+## 5. Model File Format & Permissions
+
+- All `.npz` stats files must be plain NumPy arrays (not pickled).
+- Use only the filename (not a path) for `stats_file` in `config.yaml`.
+- Permissions:
+  - Model, stats, and dictionary files: `644`
+  - Output/temp directories: `777`
+
+---
+
+## 6. Running Locally
+
+### 6.1. Prepare Directories
+```bash
+mkdir -p static/audio Fastspeech2_HS/tmp
+chmod 777 static/audio Fastspeech2_HS/tmp
+```
+
+### 6.2. Start the Application
+```bash
 conda activate tts_env
-
-# Start the Flask application
 python app.py
 ```
+- App runs at: http://localhost:4005
 
-The application will be available at: `http://localhost:4005`
+### 6.3. Test Inference
+```bash
+cd Fastspeech2_HS
+python inference.py --sample_text "नमस्कार" --language marathi --gender male --alpha 1.0 --output_file output_marathi.wav
+```
 
-### 8. Verify Installation
+---
 
-1. Open your web browser and navigate to `http://localhost:4005`
-2. Select a language from the dropdown
-3. Choose gender and speed options
-4. Enter some text
-5. Click "Generate Speech" to test
+## 7. Deployment (Docker/Render/DigitalOcean)
 
-## Supported Languages
+### 7.1. Dockerfile Example
+```dockerfile
+FROM python:3.10
+WORKDIR /app
+COPY . .
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
+EXPOSE 8000
+CMD ["gunicorn", "app:app", "--config", "gunicorn_config.py", "--timeout", "120", "--workers", "1", "--threads", "4"]
+```
 
-- Hindi
-- Marathi
-- Punjabi
-- Tamil
-- Telugu
-- Kannada
-- Malayalam
-- Gujarati
-- Bengali
-- Odia
-- Assamese
-- Manipuri
-- Bodo
-- Rajasthani
-- Urdu
-- English
+### 7.2. Render/DigitalOcean Setup
+- Use Docker deployment for full Git LFS support.
+- Set environment variable `TTS_MODEL_ROOT` to `/app/Fastspeech2_HS` (or as needed).
+- Ensure all model files are present in the image (run `git lfs pull` before building).
 
-## Troubleshooting
+### 7.3. After Deployment: Verify
+```bash
+# In the deployed container:
+python3 -c "import numpy as np; np.load('/app/Fastspeech2_HS/[language]/[gender]/model/feats_stats.npz', allow_pickle=False)"
+```
+- If no error, deployment is correct.
 
-1. If you see Flash Attention warning:
-   ```
-   Failed to import Flash Attention, using ESPnet default: No module named 'flash_attn'
-   ```
-   This is normal and can be safely ignored.
+---
 
-2. If you encounter CUDA errors:
-   - Ensure you have CUDA installed if using GPU
-   - Try running on CPU by setting appropriate environment variables
+## 8. Troubleshooting & Common Errors
 
-3. If models are not loading:
-   - Check if model files are in correct directories
-   - Verify file permissions
-   - Check console for specific error messages
+| Error/Issue                                 | Cause                        | Solution                                 |
+|---------------------------------------------|------------------------------|------------------------------------------|
+| ValueError: pickled data                    | .npz saved with pickle       | Re-save as plain NumPy arrays            |
+| FileNotFoundError: feats_stats.npz          | Wrong path or missing file   | Check config, ensure file is present     |
+| SIGKILL (exit code 137/9)                   | Out of memory/CPU            | Upgrade plan, optimize model             |
+| Request timed out                           | Inference too slow           | Limit input, load models at startup      |
+| ModuleNotFoundError: flask_cors             | Missing dependency           | Add to requirements.txt                  |
 
-4. For package conflicts:
-   ```bash
-   # Create a fresh environment
-   conda deactivate
-   conda env remove -n tts_env
-   conda create -n tts_env python=3.10
-   conda activate tts_env
-   ```
-   Then follow the installation steps again.
+---
 
-## Quick Commands Reference
+## 9. Best Practices & Tips
+- Use only the filename for `stats_file` in config.yaml.
+- Patch config.yaml at runtime to use absolute paths if needed.
+- Only track large files with LFS; use regular Git for small files.
+- Always run `git lfs pull` before building Docker images.
+- Load models and vocoders once at startup, not per request.
+- Limit input text length to avoid timeouts.
+- Monitor logs for errors and optimize for your deployment environment.
 
+---
+
+## 10. Quick Commands Reference
 ```bash
 # Start application
 conda activate tts_env && python app.py
-
-# Kill existing process and restart (if needed)
+# Kill existing process and restart
 pkill -f "python app.py" && conda activate tts_env && python app.py
-
 # Check installed packages
 pip list
+# Test model file loading
+python3 -c "import numpy as np; np.load('Fastspeech2_HS/[language]/[gender]/model/feats_stats.npz', allow_pickle=False)"
 ```
 
-## Additional Notes
+---
 
-- Keep your conda environment activated while working with the project
-- Regular updates to dependencies might be required for security patches
-- Backup your model files before any major updates
-- For production deployment, consider using gunicorn with Flask
+## 11. Adding a New Language/Gender (Checklist)
+- [x] Place all required files (`model.pth`, `config.yaml`, `feats_stats.npz`, `energy_stats.npz`, `pitch_stats.npz`) in the correct model directory.
+- [x] Ensure all `.npz` stats files are plain NumPy arrays (not pickled).
+- [x] Track only large files with LFS; commit small files as regular files.
+- [x] Use only the filename for `stats_file` in config.yaml.
+- [x] Set permissions: files to 644, output/temp dirs to 777.
+- [x] Update backend logic to select the correct model directory.
+- [x] Test after deployment: file hashes, np.load, inference, and audio output.
 
-## Support
+---
 
-For issues and questions:
-1. Check the troubleshooting section
-2. Verify your Python and package versions
-3. Ensure all model files are in place
-4. Check system requirements are met 
+## 12. Support & Further Help
+- Check the troubleshooting section above.
+- Verify your Python and package versions.
+- Ensure all model files are in place and permissions are correct.
+- For further help, open an issue on the project repository.
 
+---
 
-
-
-
-
-from pd
-pkill -f "python app.py" && conda activate tts_env && python app.py
-conda create -n tts_env python=3.10 -y
-conda activate tts_env && pip install torch torchaudio espnet pandas num2words indic-unified-parser flask nltk
-python app.py
-
-cd Fastspeech2_HS && python inference.py --sample_text "नमस्कार" --language marathi --gender male --alpha 1.0 --output_file output_marathi.wav
+🎉 **Lavanya-TTS is now robust, portable, and ready for production and scaling!**
