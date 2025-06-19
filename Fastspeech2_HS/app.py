@@ -116,23 +116,47 @@ def text_synthesis(language, gender, sample_text, vocoder, MAX_WAV_VALUE, device
 def setup_app():
     genders = ['male','female']
     # to make dummy calls in all languages available
-    languages = {'hindi': "नमस्ते",'malayalam': "ഹലോ",'manipuri': "হ্যালো",'marathi': "हॅलो",'kannada': "ಹಲೋ",'bodo': "हॅलो",'english': "Hello",'assamese': "হ্যালো",'tamil': "ஹலோ",'odia': "ହେଲୋ",'rajasthani': "हॅलो",'telugu': "హలో",'bengali': "হ্যালো",'gujarati': "હલો"}
-    
+    languages = {
+        'hindi': "नमस्ते",
+        'malayalam': "ഹലോ",
+        'manipuri': "হ্যালো",
+        'marathi': "हॅलो",
+        'kannada': "ಹಲೋ",
+        'bodo': "हॅलो",
+        'english': "Hello",
+        'assamese': "হ্যালো",
+        'tamil': "ஹலோ",
+        'odia': "ହେଲୋ",
+        'rajasthani': "हॅलो",
+        'telugu': "హలో",
+        'bengali': "হ্যালো",
+        'gujarati': "હલો"
+    }
     vocoders = {}
     for gender in genders:
-        vocoders[gender]={}
-        for language,text in languages.items():
-            # Load the HiFi-GAN vocoder with dynamic language and gender
-            vocoder = load_hifigan_vocoder(language, gender, device)
-            vocoders[gender][language] = vocoder
-            # dummy calls
-            print(f"making dummy calls for {language} - {gender}")
-            try:
-                out = text_synthesis(language, gender, text, vocoder, MAX_WAV_VALUE, device)
-            except:
-                message = f"cannot make dummy call for {gender} - {language} <==================="
-                print(message.upper())
-                
+        vocoders[gender] = {}
+        for language, text in languages.items():
+            # Only initialize vocoder and dummy call if model files exist
+            model_dir = os.path.join(language, gender, "model")
+            model_pth = os.path.join(model_dir, "model.pth")
+            config_yaml = os.path.join(model_dir, "config.yaml")
+            feats_stats = os.path.join(model_dir, "feats_stats.npz")
+            energy_stats = os.path.join(model_dir, "energy_stats.npz")
+            pitch_stats = os.path.join(model_dir, "pitch_stats.npz")
+            if all(os.path.exists(f) for f in [model_pth, config_yaml, feats_stats, energy_stats, pitch_stats]):
+                try:
+                    vocoder = load_hifigan_vocoder(language, gender, device)
+                    vocoders[gender][language] = vocoder
+                    print(f"making dummy calls for {language} - {gender}")
+                    try:
+                        out = text_synthesis(language, gender, text, vocoder, MAX_WAV_VALUE, device)
+                    except Exception as e:
+                        message = f"cannot make dummy call for {gender} - {language} <=================== Reason: {e}"
+                        print(message.upper())
+                except Exception as e:
+                    print(f"Failed to load vocoder for {language}-{gender}: {e}")
+            else:
+                print(f"Skipping {language}-{gender}: model files missing.")
     print("Server Started...")
     return vocoders
 vocoders = setup_app()

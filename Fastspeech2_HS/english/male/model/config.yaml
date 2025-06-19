@@ -42,7 +42,7 @@ energy_extract_conf:
   win_length: null
 energy_normalize: global_mvn
 energy_normalize_conf:
-  stats_file: /Users/kishorbapat/Desktop/lavanya_tts/Fastspeech2_HS/english/male/model/energy_stats.npz
+  stats_file: energy_stats.npz
 feats_extract: fbank
 feats_extract_conf:
   fmax: 8000
@@ -78,7 +78,7 @@ no_forward_run: false
 non_linguistic_symbols: null
 normalize: global_mvn
 normalize_conf:
-  stats_file: /Users/kishorbapat/Desktop/lavanya_tts/Fastspeech2_HS/english/male/model/feats_stats.npz
+  stats_file: feats_stats.npz
 num_att_plot: 3
 num_cache_chunks: 1024
 num_iters_per_epoch: 800
@@ -99,7 +99,7 @@ pitch_extract_conf:
   reduction_factor: 1
 pitch_normalize: global_mvn
 pitch_normalize_conf:
-  stats_file: /Users/kishorbapat/Desktop/lavanya_tts/Fastspeech2_HS/english/male/model/pitch_stats.npz
+  stats_file: pitch_stats.npz
 pretrain_path: null
 print_config: false
 required:
