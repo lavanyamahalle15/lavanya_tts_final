@@ -1903,3 +1903,90 @@ def tts():
 Only vocoders are preloaded right now.
 For best performance, preload both vocoders and TTS models at startup.
 This will make your app much faster and more reliable.
+
+
+
+
+
+📘 EkaTech1 – Ekalipi Technology
+One Script for 7000 Languages
+
+Ekalipi is a phonetic script designed to capture the pronunciation of words from any language using a unified, easy-to-learn character set. It's engineered to solve the problem of inconsistent spelling and pronunciation across diverse languages :contentReference[oaicite:2]{index=2}.
+
+🌍 What Is Ekalipi?
+Single Script for All: Encodes up to 7000 languages into one standard system—compact, consistent, and intuitive :contentReference[oaicite:3]{index=3}.
+Designed for the Real World: Makes reading street signs, menus, place names, and personal names easier in unfamiliar scripts :contentReference[oaicite:4]{index=4}.
+Quick to Master: Learnable in about 2 hours; practical tools are provided to practice and reinforce :contentReference[oaicite:5]{index=5}.
+🛠️ Core Tools & Services
+Ekalipi Keyboards: Available for
+Windows (v6.4) :contentReference[oaicite:6]{index=6}
+iOS (App Store) & Android (Play Store) :contentReference[oaicite:7]{index=7}
+Web Keyboard: Practice typing and hear characters hover-to-play :contentReference[oaicite:8]{index=8}.
+Fonounce: A call announcer app that pronounces caller names accurately using Ekalipi phonetics :contentReference[oaicite:9]{index=9}.
+EkaJaladBharatee (EJB): Converts Ekalipi script into Devanagari—and more tools like Text-to-Speech are in development :contentReference[oaicite:10]{index=10}.
+🎯 Who We Are
+Ekalipi is driven by the Ekalipi Institute, founded by Kishor Bapat, currently headquartered in Pune (India) and Encino (CA, USA) :contentReference[oaicite:11]{index=11}.
+
+🚀 Why It Matters
+Benefit	Description
+Universal Pronunciation	Enable clear, native-caliber pronunciation for names, towns, recipes, etc. :contentReference[oaicite:12]{index=12}
+Global Accessibility	Standardizes script across languages without learning separate alphabets :contentReference[oaicite:13]{index=13}
+Real-World Solutions	Apps like Fonounce and keyboards tackle everyday language challenges
+🧭 Get Started
+🔗 Explore tools at ekalipi.com & ekalipi.org.
+⌨️ Download and install a keyboard for your OS.
+🧠 Learn Ekalipi in ~2 hours via tutorials and videos :contentReference[oaicite:14]{index=14}.
+🎙️ Try Fonounce to experience accurate call-name pronunciation.
+📞 Contact & Support
+India
+Ekalipi Institute, Survey No 54, Plot 21, Ramanadi Housing Society, Bavdhan, Pune 411021
+📧 admin@ekalipi.com | 📞 +91 72086 96522
+
+USA
+5440 Lindley Ave Unit 111, Encino, CA 91316
+📞 +1 805 426 5676 :contentReference[oaicite:15]{index=15}
+
+🤝 Join the Revolution
+Ekalipi is built on community. Contribute by:
+
+Sharing tools & keyboards with friends
+Adding pronunciations to Wikilipi (pronunciation dictionary) :contentReference[oaicite:16]{index=16}
+Developing apps, scripts, or teaching tools
+
+
+
+The initial spark for Ekalipi came from the frustration and annoyance of the founder Kishor Bapat, who discovered during his travels around the world that it was very difficult to read street signs in the local languages. Even when the street signs were in the Roman script, he found it difficult to communicate with the locals since the actual pronunciation was frequently totally different.
+
+After thinking about solving this issue, he realized that the actual issue was much bigger. Language wasn't the issue. We are always going to have multiple languages. There is no going to pre Tower of Babel days. The scripts that the languages are rendered in (for reading and writing) can however be solved by creating a single phonetic script.
+
+We are not the first to come up with this idea. IPA (International Phonetic Alphabet among others have proposed similar schemes. But we are the first to want to limit the character set and target all the world's scripts at once instead of language by language. Please see the discussion on IPA in the FAQ. Our goal is to have something that is easy to adopt and use (not technically or scientifically perfect).
+
+Will Ekalipi become universal today or tomorrow? Some might say probably not in our lifetime. But eventually it or something like it will. It just makes too much sense for it not to happen. Also modern technology has exponentially increased the adoption rate of new ideas so it is not impossible. Please see our Quick Start page for ideas on how Ekalipi can solve some problems right away. We refer to it as the "low hanging fruit".
+
+
+What is Ekalipi
+Ekalipi is a revolutionary idea and we have no doubt that it will revolutionize the way the world communicates.
+
+The key to Ekalipi's success is YOU, the entrepreneur.
+
+Even if you do not intend to develop a product or service, we would appreciate if you use the available tools and promote them to your friends and colleagues. Please use all available media tools, such chats, emails, Twitter, Facebook, and more.
+
+Remember, Ekalipi works best if both - the sender and the receiver are familiar with Ekalipi. So, what are you waiting for? Come, join us even if you want to make a small investment of your time and/or money. We will provide you with any support that you might need.
+
+You can get started by signing up at our Ekalipi.org website to receive latest news and updates about the Ekalipi Institute.
+
+How Ekalipi
+The initial spark for Ekalipi came from the frustration and annoyance of the founder Kishor Bapat, who discovered during his travels around the world that it was very difficult to read street signs in the local languages.
+
+Even when the street signs were in the Roman script, he found it difficult to communicate with the locals since the actual pronunciation was frequently totally different.
+
+Upon his move to Denmark, Kishor struggled mightily with the local language since the Danish spelling appeared totally inconsistent to English, which itself is highly inconsistent.
+
+He also noticed that a poor English language speaker learns Danish faster since this person does not have to unlearn the pronunciation rules of English. It made him realize that difficult as it is to learn a new language, the script and its usage made the process even more difficult.
+
+Why Ekalipi
+"Ekalipi- One script solution for all your language woes. Be it Gujarati,Telugu,Hindi or any other language, all you need is just one script.Its not a completely new language, it's just a phonetic script which can encapsulate the the scripts of upto 7000 different languages into one.
+
+All the world's scripts are imbibed at once instead of language by language, also it has a limited character set which makes it even more effective .It makes the job of read anything wherever you might be in the world be it billboards,street signs, etc.You can use it as it in the manner convenient to you i.e. in the way that you speak .
+
+It's quite easy to learn, all you need is a little time to get familiar with it. "
