@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, make_response
+from flask import Flask, render_template, request, jsonify, make_response, send_from_directory
 from flask_cors import CORS
 import os
 import subprocess
@@ -49,6 +49,7 @@ def cleanup_old_files(directory, max_age=7200):  # Increased to 2 hours
     except Exception as e:
         logger.error(f"Error cleaning up files: {str(e)}")
 
+# --- Process timeout function ---
 def process_tts(text, language, gender, alpha, output_file, inference_dir):
     """Process TTS in a separate function that doesn't need request context"""
     try:
@@ -66,17 +67,31 @@ def process_tts(text, language, gender, alpha, output_file, inference_dir):
             '--output_file', output_file
         ]
         
+        logger.info(f"Running TTS command: {' '.join(cmd)}")
+        logger.info(f"Working directory: {inference_dir}")
+        
         process = subprocess.run(
             cmd,
             check=False,  # Don't raise immediately
             cwd=inference_dir,
             capture_output=True,
             text=True,
-            timeout=60  # Increased timeout for debugging
+            timeout=120  # Increased timeout for longer processing
         )
         
         if process.returncode != 0:
-            logger.error(f"TTS process failed.\nSTDOUT: {process.stdout}\nSTDERR: {process.stderr}")
+            error_msg = f"TTS process failed with return code {process.returncode}.\nSTDOUT: {process.stdout}\nSTDERR: {process.stderr}"
+            logger.error(error_msg)
+            
+            # Check if the inference directory exists
+            if not os.path.exists(inference_dir):
+                raise FileNotFoundError(f"Inference directory not found: {inference_dir}")
+                
+            # Check if inference.py exists
+            inference_path = os.path.join(inference_dir, 'inference.py')
+            if not os.path.exists(inference_path):
+                raise FileNotFoundError(f"inference.py not found at: {inference_path}")
+                
             raise subprocess.CalledProcessError(process.returncode, cmd, process.stdout, process.stderr)
             
         if not os.path.exists(output_file):
@@ -155,8 +170,8 @@ def with_timeout(seconds):
                 )
                 
                 try:
-                    # Wait for the result with a shorter timeout
-                    success = future.result(timeout=20)  # Reduced internal timeout
+                    # Wait for the result with a timeout
+                    success = future.result(timeout=120)  # Increased to match other timeouts
                     
                     if success:
                         response = jsonify({
@@ -192,6 +207,14 @@ def with_timeout(seconds):
     return decorator
 
 # --- Routes ---
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(
+        os.path.join(app.root_path, 'static'),
+        'favicon.ico', 
+        mimetype='image/vnd.microsoft.icon'
+    )
 
 @app.route('/')
 def home():
@@ -249,7 +272,7 @@ def synthesize():
 
         try:
             # Wait for the result with a timeout
-            success = future.result(timeout=25)  # Increased timeout for Standard plan
+            success = future.result(timeout=120)  # Increased timeout to match process_tts
 
             if success:
                 response = jsonify({

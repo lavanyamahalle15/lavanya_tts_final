@@ -11,3 +11,7 @@ dependencies:
   - pytorch
   - torchaudio
   - pyyaml
+  - pandas
+  - pip:
+    - g2p-en
+    - indic-unified-parser

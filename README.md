@@ -28,12 +28,35 @@ pip install torch==2.0.1 torchaudio==2.0.2
 # Flask and Gunicorn
 pip install flask==3.1.0 gunicorn flask_cors
 # ESPnet and TTS dependencies
-pip install espnet espnet2 soundfile
+pip install espnet soundfile
 # Language and utility packages
 pip install numpy scipy PyYAML indic-num2words nltk indic-unified-parser pandas matplotlib requests
 ```
+pip install num2words
+conda activate tts_env && pip list | grep num2words
 
+**add new lang**
+in model file 
+add fix_stats.py
+import numpy as np
+
+for fname in ["feats_stats.npz", "energy_stats.npz", "pitch_stats.npz"]:
+    print(f"Processing {fname}...")
+    data = np.load(fname, allow_pickle=True)
+    np.savez(fname, **data)
+    print(f"Re-saved {fname} as plain NumPy .npz (no pickle).")
+
+in terminal run :cd Fastspeech2_HS/ekalipi/male/model && python3 fix_stats.py
+. **config.yaml**
+   - Use only the filename for `stats_file` entries (e.g., `feats_stats.npz`), not a path.
+. **Permissions**
+   - All model, stats, and dictionary files: `644`
+   chmod 644 Fastspeech2_HS/english/male/model/*
+   - Any output or temp directories: `777`
+   chmod 777 Fastspeech2_HS/tmp
+   chmod 777 static/audio
 ---
+
 
 ## 3. Project Download & Directory Structure
 

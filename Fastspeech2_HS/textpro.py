@@ -86,80 +86,178 @@ class TextCleaner:
 
 class Phonifier:
     def __init__(self, dict_location=None):
-        self.dict_location = dict_location if dict_location is not None else "phone_dict"
+        if dict_location is None:
+            dict_location = "phone_dict"
+        self.dict_location = dict_location
+
+        # self.phone_dictionary = {}
+        # # load dictionary for all the available languages
+        # for dict_file in os.listdir(dict_location):
+        #     try:
+        #         if dict_file.startswith("."):
+        #             # ignore hidden files
+        #             continue
+        #         language = dict_file
+        #         dict_file_path = os.path.join(dict_location, dict_file)
+        #         df = pd.read_csv(dict_file_path, delimiter=" ", header=None, dtype=str)
+        #         self.phone_dictionary[language] = df.set_index(0).to_dict('dict')[1]
+        #     except Exception as e:
+        #         print(traceback.format_exc())
+
+        # print("Phone dictionary loaded for the following languages:", list(self.phone_dictionary.keys()))
+
         self.g2p = G2p()
         print('Loading G2P model... Done!')
-        
-        # Load charmap for special character handling
-        self.charmap = {}
-        charmap_dir = os.path.join(os.path.dirname(__file__), 'charmap')
-        charmap_files = {
-            'ekalipi': 'charmap_Ekalipi.txt',
-            'hindi': 'charmap_Hindi.txt', 
-            'marathi': 'charmap_Marathi.txt',
-            'telugu': 'charmap_Telugu.txt',
-            'tamil': 'charmap_Tamil.disabled',
-            'malayalam': 'charmap_Malayalam.txt',
-            'bengali': 'charmap_Bengali.txt'
-        }
-        
-        # Load all charmaps
-        for lang, filename in charmap_files.items():
-            charmap_path = os.path.join(charmap_dir, filename)
-            if os.path.exists(charmap_path):
-                with open(charmap_path, 'r', encoding='utf-8') as f:
-                    for line in f:
-                        if line.strip() and not line.startswith('//'):
-                            parts = line.strip().split('\t')
-                            if len(parts) == 2:
-                                self.charmap[parts[0]] = parts[1]
-                                
         # Mapping between the cmu phones and the iitm cls
         self.cmu_2_cls_map = {
-            "AA" : "aa", "AA0" : "aa", "AA1" : "aa", "AA2" : "aa",
-            "AE" : "axx", "AE0" : "axx", "AE1" : "axx", "AE2" : "axx",
-            "AH" : "a", "AH0" : "a", "AH1" : "a", "AH2" : "a",
-            "AO" : "ax", "AO0" : "ax", "AO1" : "ax", "AO2" : "ax",
-            "AW" : "ou", "AW0" : "ou", "AW1" : "ou", "AW2" : "ou",
+            "AA" : "aa",
+            "AA0" : "aa",
+            "AA1" : "aa",
+            "AA2" : "aa",
+            "AE" : "axx",
+            "AE0" : "axx",
+            "AE1" : "axx",
+            "AE2" : "axx",
+            "AH" : "a",
+            "AH0" : "a",
+            "AH1" : "a",
+            "AH2" : "a",
+            "AO" : "ax",
+            "AO0" : "ax",
+            "AO1" : "ax",
+            "AO2" : "ax",
+            "AW" : "ou",
+            "AW0" : "ou",
+            "AW1" : "ou",
+            "AW2" : "ou",
             "AX" : "a",
-            "AY" : "ei", "AY0" : "ei", "AY1" : "ei", "AY2" : "ei",
-            "B" : "b", "CH" : "c", "D" : "dx", "DH" : "d",
-            "EH" : "ee", "EH0" : "ee", "EH1" : "ee", "EH2" : "ee",
-            "ER" : "a r", "ER0" : "a r", "ER1" : "a r", "ER2" : "a r",
-            "EY" : "ee", "EY0" : "ee", "EY1" : "ee", "EY2" : "ee",
-            "F" : "f", "G" : "g", "HH" : "h",
-            "IH" : "i", "IH0" : "i", "IH1" : "i", "IH2" : "i",
-            "IY" : "ii", "IY0" : "ii", "IY1" : "ii", "IY2" : "ii",
-            "JH" : "j", "K" : "k", "L" : "l", "M" : "m",
-            "N" : "n", "NG" : "ng",
-            "OW" : "o", "OW0" : "o", "OW1" : "o", "OW2" : "o",
-            "OY" : "ei", "OY0" : "ei", "OY1" : "ei", "OY2" : "ei",
-            "P" : "p", "R" : "r", "S" : "s", "SH" : "sh",
-            "T" : "tx", "TH" : "t",
-            "UH" : "u", "UH0" : "u", "UH1" : "u", "UH2" : "u",
-            "UW" : "uu", "UW0" : "uu", "UW1" : "uu", "UW2" : "uu",
-            "V" : "w", "W" : "w", "Y" : "y", "Z" : "z", "ZH" : "sh"
+            "AY" : "ei",
+            "AY0" : "ei",
+            "AY1" : "ei",
+            "AY2" : "ei",
+            "B" : "b",
+            "CH" : "c",
+            "D" : "dx",
+            "DH" : "d",
+            "EH" : "ee",
+            "EH0" : "ee",
+            "EH1" : "ee",
+            "EH2" : "ee",
+            "ER" : "a r",
+            "ER0" : "a r",
+            "ER1" : "a r",
+            "ER2" : "a r",
+            "EY" : "ee",
+            "EY0" : "ee",
+            "EY1" : "ee",
+            "EY2" : "ee",
+            "F" : "f",
+            "G" : "g",
+            "HH" : "h",
+            "IH" : "i",
+            "IH0" : "i",
+            "IH1" : "i",
+            "IH2" : "i",
+            "IY" : "ii",
+            "IY0" : "ii",
+            "IY1" : "ii",
+            "IY2" : "ii",
+            "JH" : "j",
+            "K" : "k",
+            "L" : "l",
+            "M" : "m",
+            "N" : "n",
+            "NG" : "ng",
+            "OW" : "o",
+            "OW0" : "o",
+            "OW1" : "o",
+            "OW2" : "o",
+            "OY" : "ei",
+            "OY0" : "ei",
+            "OY1" : "ei",
+            "OY2" : "ei",
+            "P" : "p",
+            "R" : "r",
+            "S" : "s",
+            "SH" : "sh",
+            "T" : "tx",
+            "TH" : "t",
+            "UH" : "u",
+            "UH0" : "u",
+            "UH1" : "u",
+            "UH2" : "u",
+            "UW" : "uu",
+            "UW0" : "uu",
+            "UW1" : "uu",
+            "UW2" : "uu",
+            "V" : "w",
+            "W" : "w",
+            "Y" : "y",
+            "Z" : "z",
+            "ZH" : "sh",
         }
 
         # Mapping between the iitm cls and iitm char
         self.cls_2_chr_map = {
-            "aa" : "A", "ii" : "I", "uu" : "U", "ee" : "E", "oo" : "O", "nn" : "N",
-            "ae" : "ऍ", "ag" : "ऽ", "au" : "औ", "axx" : "अ", "ax" : "ऑ",
-            "bh" : "B", "ch" : "C", "dh" : "ध", "dx" : "ड",
-            "dxh" : "ढ", "dxhq" : "T", "dxq" : "D", "ei" : "ऐ", "ai" : "ऐ",
-            "eu" : "உ", "gh" : "घ", "gq" : "G", "hq" : "H", "jh" : "J",
-            "kh" : "ख", "khq" : "K", "kq" : "क", "ln" : "ൾ", "lw" : "ൽ",
-            "lx" : "ള", "mq" : "M", "nd" : "न", "ng" : "ङ", "nj" : "ञ",
-            "nk" : "Y", "nw" : "ൺ", "nx" : "ण", "ou" : "औ", "ph" : "P",
-            "rq" : "R", "rqw" : "ॠ", "rw" : "ർ", "rx" : "र", "sh" : "श",
-            "sx" : "ष", "th" : "थ", "tx" : "ट", "txh" : "ठ", "wv" : "W",
-            "zh" : "Z"
+            "aa" : "A",
+            "ii" : "I",
+            "uu" : "U",
+            "ee" : "E",
+            "oo" : "O",
+            "nn" : "N",
+            "ae" : "ऍ",
+            "ag" : "ऽ",
+            "au" : "औ",
+            "axx" : "अ",
+            "ax" : "ऑ",
+            "bh" : "B",
+            "ch" : "C",
+            "dh" : "ध",
+            "dx" : "ड",
+            "dxh" : "ढ",
+            "dxhq" : "T",
+            "dxq" : "D",
+            "ei" : "ऐ",
+            "ai" : "ऐ",
+            "eu" : "உ",
+            "gh" : "घ",
+            "gq" : "G",
+            "hq" : "H",
+            "jh" : "J",
+            "kh" : "ख",
+            "khq" : "K",
+            "kq" : "क",
+            "ln" : "ൾ",
+            "lw" : "ൽ",
+            "lx" : "ള",
+            "mq" : "M",
+            "nd" : "न",
+            "ng" : "ङ",
+            "nj" : "ञ",
+            "nk" : "Y",
+            "nw" : "ൺ",
+            "nx" : "ण",
+            "ou" : "औ",
+            "ph" : "P",
+            "rq" : "R",
+            "rqw" : "ॠ",
+            "rw" : "ർ",
+            "rx" : "र",
+            "sh" : "श",
+            "sx" : "ष",
+            "th" : "थ",
+            "tx" : "ट",
+            "txh" : "ठ",
+            "wv" : "W",
+            "zh" : "Z",
         }
 
         # Multilingual support for OOV characters
         oov_map_json_file = os.path.join(os.path.dirname(__file__), 'multilingualcharmap.json')
         with open(oov_map_json_file, 'r') as oov_file:
             self.oov_map = json.load(oov_file)
+
+
 
     def load_lang_dict(self, language, phone_dictionary):            
         # load dictionary for requested language
@@ -228,103 +326,83 @@ class Phonifier:
     def __phonify(self, text, language, gender, phone_dictionary):
         # text is expected to be a list of strings
         words = set((" ".join(text)).split(" "))
+        #print(f"words test: {words}")
         non_dict_words = []
+       
         
         if language in phone_dictionary:
             for word in words:
+                # print(f"word: {word}")
                 if word not in phone_dictionary[language] and (language == "english" or (not self.__is_english_word(word))):
                     non_dict_words.append(word)
+                    #print('INSIDE IF CONDITION OF ADDING WORDS')
         else:
             non_dict_words = words
+        print(f"word not in dict: {non_dict_words}")
 
         if len(non_dict_words) > 0:
-            print(f"word not in dict: {non_dict_words}")
             # unified parser has to be run for the non dictionary words
             os.makedirs("tmp", exist_ok=True)
             timestamp = str(time.time())
             non_dict_words_file = os.path.abspath("tmp/non_dict_words_" + timestamp)
             out_dict_file = os.path.abspath("tmp/out_dict_" + timestamp)
-            
+            with open(non_dict_words_file, "w") as f:
+                f.write("\n".join(non_dict_words))
+
+            if(language == 'tamil'):
+                current_directory = os.getcwd()
+                #tamil_parser_cmd = "tamil_parser.sh"
+                tamil_parser_cmd = f"{current_directory}/ssn_parser_new/tamil_parser.py"
+                #subprocess.run(["bash", tamil_parser_cmd, non_dict_words_file, out_dict_file, timestamp, "ssn_parser"])
+                subprocess.run(["python", tamil_parser_cmd, non_dict_words_file, out_dict_file, timestamp, f"{current_directory}/ssn_parser_new"])
+            elif(language == 'english'):
+                phn_out_dict = {}
+                for i in range(0,len(non_dict_words)):
+                    phn_out_dict[non_dict_words[i]] = self.en_g2p(non_dict_words[i])
+                # Create a string representation of the dictionary
+                data_str = "\n".join([f"{key}\t{value}" for key, value in phn_out_dict.items()])
+                print(f"data_str: {data_str}")
+                with open(out_dict_file, "w") as f:
+                    f.write(data_str)
+            else:
+          
+                out_dict_file = os.path.abspath("tmp/out_dict_" + timestamp)
+                from get_phone_mapped_python import TextReplacer
+                
+                from indic_unified_parser.uparser import wordparse
+                
+                text_replacer=TextReplacer()
+                # def write_output_to_file(output_text, file_path):
+                #     with open(file_path, 'w') as f:
+                #         f.write(output_text)
+                parsed_output_list = []
+                for word in non_dict_words:
+                    parsed_word = wordparse(word, 0, 0, 1)
+                    parsed_output_list.append(parsed_word)
+                replaced_output_list = [text_replacer.apply_replacements(parsed_word) for parsed_word in parsed_output_list]
+                with open(out_dict_file, 'w', encoding='utf-8') as file:
+                    for original_word, formatted_word in zip(non_dict_words, replaced_output_list):
+                        line = f"{original_word}\t{formatted_word}\n"
+                        file.write(line)
+                        print(line, end='') 
+                  
+
             try:
-                with open(non_dict_words_file, "w") as f:
-                    f.write("\n".join(non_dict_words))
-
-                if language == 'tamil':
-                    current_directory = os.getcwd()
-                    tamil_parser_cmd = f"{current_directory}/ssn_parser_new/tamil_parser.py"
-                    subprocess.run(["python", tamil_parser_cmd, non_dict_words_file, out_dict_file, timestamp, f"{current_directory}/ssn_parser_new"])
-                elif language == 'english':
-                    phn_out_dict = {}
-                    for word in non_dict_words:
-                        phn_out_dict[word] = self.en_g2p(word)
-                    data_str = "\n".join([f"{key}\t{value}" for key, value in phn_out_dict.items()])
-                    with open(out_dict_file, "w") as f:
-                        f.write(data_str)
-                elif language in ['ekalipi', 'hindi', 'marathi']:
-                    # Special handling for ekalipi, hindi and marathi with direct character mapping
-                    phn_out_dict = {}
-                    for word in non_dict_words:
-                        try:
-                            # Process word character by character using charmap
-                            processed_chars = []
-                            for char in word:
-                                if char in self.charmap:
-                                    processed_chars.append(self.charmap[char])
-                                else:
-                                    # If character not in charmap, try compound character handling
-                                    compound_found = False
-                                    for key, value in self.charmap.items():
-                                        if len(key) > 1 and key in word:
-                                            word = word.replace(key, value)
-                                            compound_found = True
-                                    if not compound_found:
-                                        processed_chars.append(char)
-                            processed_word = ''.join(processed_chars) if not compound_found else word
-                            phn_out_dict[word] = processed_word
-                        except Exception as e:
-                            print(f"Warning: Could not process word {word}: {str(e)}")
-                            phn_out_dict[word] = word
-                    data_str = "\n".join([f"{key}\t{value}" for key, value in phn_out_dict.items()])
-                    with open(out_dict_file, "w") as f:
-                        f.write(data_str)
+                
+                df = pd.read_csv(out_dict_file, delimiter="\t", header=None, dtype=str)
+                #print('DATAFRAME OUTPUT FILE', df.head())
+                new_dict = df.dropna().set_index(0).to_dict('dict')[1]
+                #print("new dict",new_dict)
+                if language not in phone_dictionary:
+                    phone_dictionary[language] = new_dict
                 else:
-                    # For other languages use unified parser
-                    from get_phone_mapped_python import TextReplacer
-                    from indic_unified_parser.uparser import wordparse
-                    
-                    text_replacer = TextReplacer()
-                    parsed_output_list = []
-                    for word in non_dict_words:
-                        try:
-                            parsed_word = wordparse(word, 0, 0, 1)
-                            parsed_output_list.append(parsed_word)
-                        except Exception as e:
-                            print(f"Warning: Could not parse word {word}: {str(e)}")
-                            parsed_output_list.append(word)  # Use word as-is if parsing fails
-                            
-                    replaced_output_list = [text_replacer.apply_replacements(parsed_word) for parsed_word in parsed_output_list]
-                    with open(out_dict_file, 'w', encoding='utf-8') as file:
-                        for original_word, formatted_word in zip(non_dict_words, replaced_output_list):
-                            line = f"{original_word}\t{formatted_word}\n"
-                            file.write(line)
-
-                # Update the phone dictionary with new words
-                try:
-                    df = pd.read_csv(out_dict_file, delimiter="\t", header=None, dtype=str)
-                    new_dict = df.dropna().set_index(0).to_dict('dict')[1]
-                    if language not in phone_dictionary:
-                        phone_dictionary[language] = new_dict
-                    else:
-                        phone_dictionary[language].update(new_dict)
-                    # Update dictionary file asynchronously
-                    p = Process(target=add_to_dictionary, args=(new_dict, os.path.join(self.dict_location, language)))
-                    p.start()
-                except Exception as err:
-                    print(f"Error: While loading {out_dict_file}")
-                    traceback.print_exc()
-
-            except Exception as e:
-                print(f"Error processing non-dictionary words: {str(e)}")
+                    phone_dictionary[language].update(new_dict)
+                # run a non-blocking child process to update the dictionary file
+                #print("phone_dict", self.phone_dictionary)
+                p = Process(target=add_to_dictionary, args=(new_dict, os.path.join(self.dict_location, language)))
+                p.start()
+            except Exception as err:
+                print(f"Error: While loading {out_dict_file}")
                 traceback.print_exc()
 
         # phonify text with dictionary
@@ -338,10 +416,9 @@ class Phonifier:
                     else:
                         phrase_phonified.append(str(self.en_g2p(word)))
                 elif word in phone_dictionary[language]:
+                    # if a word could not be parsed, skip it
                     phrase_phonified.append(str(phone_dictionary[language][word]))
-                else:
-                    # If word is not in dictionary, use it as-is
-                    phrase_phonified.append(word)
+            # text_phonified.append(self.__post_phonify(" ".join(phrase_phonified),language, gender))
             text_phonified.append(" ".join(phrase_phonified))
         return text_phonified
 
@@ -388,33 +465,6 @@ class Phonifier:
                 # Create a string representation of the dictionary
                 data_str = "\n".join([f"{key}\t{value}" for key, value in phn_out_dict.items()])
                 print(f"data_str: {data_str}")
-                with open(out_dict_file, "w") as f:
-                    f.write(data_str)
-            elif(language in ['ekalipi', 'hindi', 'marathi']):
-                # Special handling for ekalipi, hindi and marathi with direct character mapping
-                phn_out_dict = {}
-                for word in non_dict_words:
-                    try:
-                        # Process word character by character using charmap
-                        processed_chars = []
-                        for char in word:
-                            if char in self.charmap:
-                                processed_chars.append(self.charmap[char])
-                            else:
-                                # If character not in charmap, try compound character handling
-                                compound_found = False
-                                for key, value in self.charmap.items():
-                                    if len(key) > 1 and key in word:
-                                        word = word.replace(key, value)
-                                        compound_found = True
-                                if not compound_found:
-                                    processed_chars.append(char)
-                        processed_word = ''.join(processed_chars) if not compound_found else word
-                        phn_out_dict[word] = processed_word
-                    except Exception as e:
-                        print(f"Warning: Could not process word {word}: {str(e)}")
-                        phn_out_dict[word] = word
-                data_str = "\n".join([f"{key}\t{value}" for key, value in phn_out_dict.items()])
                 with open(out_dict_file, "w") as f:
                     f.write(data_str)
             else:
@@ -758,7 +808,7 @@ class DurAlignTextProcessor:
         return text
     
     def textProcesorForEnglish(self, text):
-        for key, replacement in self.cleaning_rules_english.items():
+        for key, replacement in self.cleaning_rules_English.items():
             for idx in range(0,len(text)):
                 text[idx] = re.sub(key, replacement, text[idx])
 

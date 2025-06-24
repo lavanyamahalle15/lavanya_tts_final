@@ -4,7 +4,7 @@ import multiprocessing
 # Worker configuration
 workers = 2  # Increased for Standard plan's 2GB RAM
 threads = 4  # Optimal thread count for TTS processing
-timeout = 60  # Increased timeout for longer texts
+timeout = 180  # Increased timeout for longer processing time
 worker_class = 'gthread'  # Use threads for better I/O handling
 max_requests = 10  # Increased for better throughput
 max_requests_jitter = 3

@@ -1,6 +1,15 @@
 class TextReplacer:
     def __init__(self):
         self.replacements = {
+        # Special Ekalipi characters
+        'ŋ': 'ं',
+        'ŧ': 'त',
+        'λ': 'e',
+        '@': 'æ',
+        'φ': 'ऴ',
+        'ö': 'ö',
+        'Å': 'A',
+        # Regular mappings
         'aa':'A',
         'ae':'ऍ',
         'ag':'ऽ',
@@ -51,7 +60,8 @@ class TextReplacer:
         'tx':'ट',
         'uu':'U',
         'wv':'W',
-        'zh':'Z'
+        'zh':'Z',
+        'ŧ':'त'  # Adding new mapping
 
     # ... Add more replacements as needed
         }

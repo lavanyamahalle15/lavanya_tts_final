@@ -1,3 +1,466 @@
+Yes, there is a direct relationship between the multilingualcharmap.json mappings and the charmap_Ekalipi.txt file I created earlier. Both files serve to map Ekalipi characters to their phonetic representations, but they serve slightly different purposes:
+
+charmap_Ekalipi.txt provides a simple tab-separated mapping from characters to their pronunciation/representation, used primarily for basic text processing and pronunciation lookups. It's a more human-readable format.
+
+multilingualcharmap.json contains more detailed mappings for both male and female voices, including Unicode escape sequences, and is used by the TTS system to handle character mappings during speech synthesis. It's more programmatically oriented.
+
+
+1. Initial TTS Engine Integration & Setup
+- Successfully integrated a pre-built TTS engine from CDAC
+- Resolved complex dependency conflicts and version compatibility issues
+- Established a stable model environment integration
+
+2. Multilingual Web Application Development
+- Created a responsive web interface using:
+  * HTML5
+  * Bootstrap 5.3
+  * Font Awesome
+  * Flask backend
+- Implemented features for multiple Indian languages:
+  * Hindi
+  * Marathi
+  * Gujarati
+  * Telugu
+- Added core functionality:
+  * Language selection
+  * Gender selection
+  * Speech speed control
+  * Sample text suggestions
+
+3. Frontend Development
+- Built responsive UI with audio features:
+  * HTML5 audio playback integration
+  * Download functionality for generated audio
+  * Cross-browser compatibility testing and fixes
+  * Smooth audio output across different devices
+
+4. Backend Development
+- Developed Flask backend with:
+  * /synthesize API endpoint for TTS processing
+  * Error handling for:
+    - Missing models
+    - Invalid inputs
+    - Subprocess failures
+  * Resource management and audio file cleanup
+  * Input validation and secure file processing
+  * Increased backend timeout for longer inputs
+
+5. Project Structure & Documentation
+- Structured project directories for maintainability
+- Created comprehensive documentation:
+  * README.md
+  * TECHNICAL.md
+  * Setup guides
+  * Architecture documentation
+  * User guides
+
+6. Environment & Dependency Management
+- Set up Python 3.10 environment using conda
+- Created setup scripts for:
+  * Windows systems
+  * Linux/Mac systems
+- Managed dependencies across platforms
+
+7. Language Support
+- Implemented support for 16 languages
+- Integrated proper phone dictionaries
+- Added language samples
+- Set up text preprocessing for multiple languages
+
+8. Deployment Challenges & Solutions
+- Overcame multiple deployment challenges:
+  * Git LFS quota limitations
+  * Model size restrictions on GitHub
+  * Cloud storage limitations
+  * Free host inference speed issues
+  * Storage access problems on Render and DigitalOcean
+- Implemented solutions:
+  * Optimized model file handling
+  * Improved file permissions management
+  * Enhanced path handling for cloud deployment
+  * Set up proper environment variables
+  * Configured deployment scripts
+
+9. Performance & Reliability
+- Added error logging and monitoring
+- Implemented resource cleanup
+- Optimized audio generation process
+- Ensured consistent performance across platforms
+
+10. Security & Best Practices
+- Implemented secure file processing
+- Added input validation
+- Set up proper file permissions
+- Configured secure deployment settings
+
+This internship demonstrated your ability to:
+- Handle complex system integration
+- Solve deployment challenges
+- Work with multilingual systems
+- Develop full-stack web applications
+- Manage cloud infrastructure
+- Implement security best practices
+- Write comprehensive documentation
+- Optimize performance and reliability
+### Deployment Phase Key Contributions
+
+1. **Cloud Platform Integration & Configuration**
+   - Successfully deployed on both Render and DigitalOcean platforms
+   - Configured Docker-based deployment for consistent environments
+   - Set up proper environment variables and secrets management
+   - Implemented proper file permissions and path handling
+   - Resolved Git LFS storage quota limitations
+
+2. **Model File Management & Optimization**
+   - Implemented efficient model file handling and storage
+   - Resolved pickled data issues in stats files (feats_stats.npz, energy_stats.npz)
+   - Optimized model loading and caching strategies
+   - Set up proper file permissions (644 for model files, 777 for directories)
+   - Created reproducible build process for model deployment
+
+3. **Performance & Resource Management**
+   - Implemented resource cleanup for audio files
+   - Optimized memory usage for model loading
+   - Enhanced CPU utilization for inference
+   - Added proper error logging and monitoring
+   - Configured timeout handling for long-running processes
+
+4. **Security & Best Practices Implementation**
+   - Secured file processing workflows
+   - Implemented proper input validation
+   - Set up secure file permissions
+   - Configured deployment security settings
+   - Added error handling for all critical operations
+
+5. **Deployment Documentation & Support**
+   - Created comprehensive deployment guides
+   - Documented cloud-specific configurations
+   - Added troubleshooting guides for common issues
+   - Maintained version compatibility documentation
+   - Created setup scripts for different environments
+
+
+The project successfully resulted in a fully functional, multilingual TTS web application deployed on both Render and DigitalOcean, showcasing your ability to take a complex system from development through to production deployment.
+
+Initial TTS Engine Integration & Setup
+Successfully integrated a pre-built TTS engine from CDAC
+Resolved complex dependency conflicts and version compatibility issues
+Established a stable model environment integration
+Multilingual Web Application Development
+Created a responsive web interface using:
+HTML5
+Bootstrap 5.3
+Font Awesome
+Flask backend
+Implemented features for multiple Indian languages:
+Hindi
+Marathi
+Gujarati
+Telugu
+Added core functionality:
+Language selection
+Gender selection
+Speech speed control
+Sample text suggestions
+Frontend Development
+Built responsive UI with audio features:
+HTML5 audio playback integration
+Download functionality for generated audio
+Cross-browser compatibility testing and fixes
+Smooth audio output across different devices
+Backend Development
+Developed Flask backend with:
+/synthesize API endpoint for TTS processing
+Error handling for:
+Missing models
+Invalid inputs
+Subprocess failures
+Resource management and audio file cleanup
+Input validation and secure file processing
+Increased backend timeout for longer inputs
+Project Structure & Documentation
+Structured project directories for maintainability
+Created comprehensive documentation:
+README.md
+TECHNICAL.md
+Setup guides
+Architecture documentation
+User guides
+Environment & Dependency Management
+Set up Python 3.10 environment using conda
+Created setup scripts for:
+Windows systems
+Linux/Mac systems
+Managed dependencies across platforms
+Language Support
+Implemented support for 16 languages
+Integrated proper phone dictionaries
+Added language samples
+Set up text preprocessing for multiple languages
+Deployment Challenges & Solutions
+Overcame multiple deployment challenges:
+Git LFS quota limitations
+Model size restrictions on GitHub
+Cloud storage limitations
+Free host inference speed issues
+Storage access problems on Render and DigitalOcean
+Implemented solutions:
+Optimized model file handling
+Improved file permissions management
+Enhanced path handling for cloud deployment
+Set up proper environment variables
+Configured deployment scripts
+Performance & Reliability
+Added error logging and monitoring
+Implemented resource cleanup
+Optimized audio generation process
+Ensured consistent performance across platforms
+Security & Best Practices
+Implemented secure file processing
+Added input validation
+Set up proper file permissions
+Configured secure deployment settings
+This internship demonstrated your ability to:
+
+Handle complex system integration
+Solve deployment challenges
+Work with multilingual systems
+Develop full-stack web applications
+Manage cloud infrastructure
+Implement security best practices
+Write comprehensive documentation
+Optimize performance and reliability
+The project successfully resulted in a fully functional, multilingual TTS web application deployed on both Render and DigitalOcean, showcasing your ability to take a complex system from development through to production deployment.
+
+end to end application with deployment 
+
+[23/06/25, 4:46:34 AM] Lavanya: ftware Developer Intern - Ekalipi Technologies Pvt Ltd Feb 2025 – April 2025
+•⁠  ⁠Worked on a pre-built Text-to-Speech (TTS) engine developed by CDAC, resolving complex dependency and
+version compatibility issues to ensure stable model environment integration.
+•⁠  ⁠Built a multilingual website allowing users to input text and listen to speech output in regional languages
+including Hindi, Marathi, Gujarati, and Telugu.
+•⁠  ⁠Developed a TTS web application for Ekalipi, a universal phonetic script consolidating scripts of up to 7,000
+languages into a compact character set, enabling seamless multilingual text-to-speech conversion and improved
+accessibility.
+•⁠  ⁠Designed a responsive frontend with audio playback and download features; connected it to a Flask backend
+leveraging the pre-trained CDAC TTS model for speech generation.
+•⁠  ⁠Overcame deployment challenges including dependency conflicts, model size restrictions on GitHub, limited
+cloud storage, slow inference speeds on free hosts, and storage access issues on Render and DigitalOcean.
+•⁠  ⁠Ensured cross-browser compatibility and smooth audio output across devices; successfully deployed the fully
+functional app with live audio output on Render and DigitalOcean.
+
+
+We are currently facing two main issues while trying to set up the FastSpeech2-based TTS system:
+
+1.⁠ ⁠Git LFS Quota Exceeded
+
+We are unable to download the required model files (e.g., model.pth for FastSpeech2 and HiFiGAN vocoder files) from the repository because the Git LFS storage/bandwidth limit has been exceeded. These pre-trained models are essential for the TTS workflow:
+	•	FastSpeech2 Model Files:
+Located at <language>/<gender>/model/model.pth
+Used to convert text input into mel-spectrograms.
+	•	HiFiGAN Vocoder Files:
+Located in the hifigan directory
+Used to convert mel-spectrograms into audio waveforms.
+
+2.⁠ ⁠Environment Setup Issues on Windows
+
+We are encountering installation errors, especially with packages like etc-segmentation, which require Visual C++ build tools.
+
+Solution Implemented:
+	•	We installed the Microsoft C++ Build Tools from https://visualstudio.microsoft.com/visual-cpp-build-tools/, including required components like the Windows 10 SDK and CMake tools.
+
+⸻
+
+Next Steps and Workarounds:
+
+Since we can’t access the model files due to LFS limits, we are considering these options:
+	1.	Request direct download links or increased LFS quota from the repository owners.
+	2.	Use alternative pre-trained models (e.g., from ESPnet or TensorSpeech for FastSpeech2, and from the HiFiGAN repo).
+	3.	Train our own models, though this requires extensive computational resources and data.
+
+
+
+
+  TTS - TASKS DONE:
+
+ 1.⁠ ⁠Developed responsive web UI using HTML5, Bootstrap 5.3, Font Awesome
+ 2.⁠ ⁠Added features: language & gender selection, speed control, sample texts
+ 3.⁠ ⁠Integrated HTML5 audio playback and download functionality
+ 4.⁠ ⁠Created Flask backend with /synthesize API for TTS processing
+ 5.⁠ ⁠Added error handling: missing models, invalid inputs, subprocess failures
+ 6.⁠ ⁠Structured project directories for clarity and maintainability
+ 7.⁠ ⁠Implemented audio file cleanup and resource management
+ 8.⁠ ⁠Documented setup, architecture, and user guide (README.md, TECHNICAL.md)
+ 9.⁠ ⁠Fixed Python env issues; used Python 3.10 + conda setup
+10.⁠ ⁠Created setup scripts for Windows & Linux/Mac
+11.⁠ ⁠Supported 16 languages with proper phone dictionaries and samples
+12.⁠ ⁠Handled input validation and secure file processing
+13.⁠ ⁠Tested audio quality, UI functionality, and error cases
+
+
+
+
+
+
+GoDaddy shared hosting (especially the cPanel-based version) typically does not support Python apps directly. It's designed mainly for PHP, static HTML, and WordPress.
+
+🔒 Why You Can’t Upload or Run Python on GoDaddy Shared Hosting
+Limitations:
+❌ No support for running Flask/FastAPI servers
+
+❌ No terminal (SSH) access for installing packages or running Python
+
+❌ .py files won’t be executed — they’ll just download or return as plain text
+
+
+
+
+
+Problem 1
+Sir git vr push nhi zale total files due to large files errors 
+
+Problem 2
+Version mismatched for hosting site
+
+Problem 3
+Dependencies depends on another 
+Changing versions leads to error for other dependencies
+
+
+
+
+tasks completed—
+
+ 1.⁠ ⁠Resolved speech generation failures by fixing model/vocoder paths and adding error handling.
+ 2.⁠ ⁠Set up a conda environment with Python 3.8 and installed ESPnet, Torch, and other dependencies.
+ 3.⁠ ⁠Tested and verified audio output for Hindi and Marathi voices.
+ 4.⁠ ⁠Improved inference.py with better path handling, stable execution, and detailed logging.
+ 5.⁠ ⁠Pushed code to GitHub: https://github.com/EkaTechKB/lavanya_tts.git).
+ 6.⁠ ⁠Deployed the app to Render:https://lavanya-tts-7.onrender.com/).—currently stopped due to gitlfs quota
+ 7.⁠ ⁠Initially, model files weren’t pushed; later resolved using Git LFS to enable audio generation.
+ 8.⁠ ⁠After changes, Render build failed as Git LFS free quota was reached – upgrade to GitHub Pro required.
+ 9.⁠ ⁠When it worked, audio generation was very slow due to 0.1 CPU on Render’s free plan.
+10.⁠ ⁠To fix this, upgrade to GitHub Pro and Render Standard Plan (\$25/month) for better speed and stability.
+
+
+
+
+now solving 
+now that you’ve moved your model files to DigitalOcean’s Volume Storage, they’ll persist across deployments, and your app won’t need to redownload them each time. This setup should eliminate errors related to missing or inaccessible model files, assuming:
+
+The volume is properly mounted at /mnt/models (or your configured path).
+
+MODEL_BASE_PATH in your app points to that mount location.
+
+The model directory structure inside the volume matches what your app expe
+
+
+
+
+Good morning Sir,
+
+Updates – Till Now
+
+Deployment Phase:
+
+1.⁠ ⁠I initially tried deploying the application using Render
+   I managed to resolve all the version mismatch errors, but the major issue was that the Git LFS quota was full, which forced me to discontinue using that platform.
+
+2.⁠ ⁠I then moved on to DigitalOcean's App Platform
+   The deployment was successful, but the application couldn't fetch data due to the absence of persistent storage
+
+3.⁠ ⁠To address that, I shifted to using a *Droplet with an attached Volume*on DigitalOcean to store the model file with persistent storage (which unfortunately is not free).
+   During this phase, I made some changes to the codebase which resulted in issues with output file generation even on the local machine.
+   However, I had anticipated this and had already taken a backup of the original codebase on my pendrive
+
+4.⁠ ⁠After exploring all these platforms, it seems that the only reliable solution left is to *purchase a subscription*and proceed.
+
+5.⁠ ⁠However, instead of opting for a paid plan right away, I would prefer to *explore a few more deployment options*to find the most cost-effective and sustainable solution.
+
+6.⁠ ⁠I’ve now started the deployment process again using the backup codebase,and I’m hopeful that this approach will yield better results.
+
+
+
+
+Current Updates -
+
+ 1.⁠ ⁠Now I tried, but your account quota for Git LFS was full.
+
+ 2.⁠ ⁠So I tried from my GitHub account, but it also got full.
+
+ 3.⁠ ⁠Then I untracked some files like ⁠ .config ⁠ and ⁠ .npz ⁠, and started facing errors.
+
+ 4.⁠ ⁠I decided not to use Git LFS and only push the Marathi male model file to GitHub.
+
+ 5.⁠ ⁠But while Render was cloning the repository, GitHub stopped cloning as the free version can only transfer files up to 100MB. Our model and config files are around 300MB.
+
+ 6.⁠ ⁠When my GitHub account's Git LFS quota was not full, we were just one step away from final deployment. A port scanning error came up.
+
+ 7.⁠ ⁠As soon as I fixed that error by changing the code and made another commit, the Git LFS quota got full.
+
+
+
+Now we have the following options:
+
+ 8.⁠ ⁠Render's \$7 plan + GitHub Pro would be the best choice for us.
+
+ 9.⁠ ⁠We will get more space on GitHub — the free plan only gives 1GB.
+
+10.⁠ ⁠The \$7 Render plan provides 0.5 core CPU — currently, on the free plan, we only have 0.1 core processing power.
+
+
+
+
+
+[19/05/25, 11:39:13 AM] Lavanya: yes
+[19/05/25, 11:39:20 AM] Lavanya: updates
+-Integrated index.html in templates/ and tested rendering with Flask.
+-Frontend fetches and plays audio using fetch + Blob.
+-Backend /synthesize route returns binary audio stream using send_file() with correct Content-Type.
+-Increased backend timeout for longer inputs.
+-Committed updated files including templates/index.html, render.yaml.
+-Untracked large model/audio files to keep repo clean.
+-Tested complete TTS flow locally (input ➝ synthesis ➝ playback)
+
+
+
+
+Error generating speech: Command '['python', 'inference.py', '--sample_text', 'नमस्कार, मी मराठी भाषेत बोलत आहे.', '--language', 'marathi', '--gender', 'male', '--alpha', '1.0', '--output_file', '/opt/render/project/src/static/audio/output_marathi_male_1749289757.wav']' returned non-zero exit status 1.
+
+
+after deplopyment error:
+
+Problem:
+The TTS model for Marathi was failing during deployment on Render due to file permission issues and incorrect vocoder path configuration.
+
+Fixes Implemented:
+
+Permissions Updated:
+
+📄 Marathi phone dictionary set to 644
+
+📄 TTS model files (config, .pth) set to 644
+
+🔊 Vocoder files (HiFi-GAN for Aryan) set to 644
+
+📁 tmp and static/audio directories set to 777 for write access
+
+Path Corrections:
+
+Adjusted vocoder path in inference.py to use vocoder/male/aryan/hifigan/ (correct for Marathi)
+
+Git LFS Integration:
+
+Initialized Git LFS
+
+Tracked and pushed all model + vocoder files
+
+Confirmed successful upload of large files (2.9 KB in LFS objects)
+
+
+
+
+
 Issues Faced & Solutions:
 * Backend-Frontend Integration:Backend returns JSON with audio file path; frontend sets <audio> source from this. No backend change needed.
 * Timeout & Concurrency:Replaced signal-based timeouts with ThreadPoolExecutor to avoid errors in Flask/Gunicorn multithreaded setup.
@@ -1990,3 +2453,343 @@ Why Ekalipi
 All the world's scripts are imbibed at once instead of language by language, also it has a limited character set which makes it even more effective .It makes the job of read anything wherever you might be in the world be it billboards,street signs, etc.You can use it as it in the manner convenient to you i.e. in the way that you speak .
 
 It's quite easy to learn, all you need is a little time to get familiar with it. "
+
+
+
+
+``#*
+<!-- Ekalipi Technologies, Pune
+Got it! Here's your updated internship experience with the **project link**, **offer letter mention**, and updated **date**:
+
+---
+
+### **Software Developer Intern**
+
+**Ekalipi Technologies**, Pune
+**Apr 2025 – Present**
+*Offer letter available upon request*
+[🔗 Project Demo](https://lavanya-tts-2-8m5q.onrender.com/)
+
+•⁠ Developed and deployed a multilingual TTS web application for Ekalipi—a universal phonetic script unifying over 7,000 languages—by integrating CDAC’s TTS engine using Flask and Docker, enhancing accessibility and enabling seamless text-to-speech conversion
+•⁠ **Utilized** Python, HTML5, and Bootstrap to build a responsive UI with audio features for 16 Indian languages; created Flask APIs with validation and error handling
+•⁠ **Configured** deployments, resolved Git LFS issues, path misconfigs, and pickled data bugs; applied secure file permissions, **facilitating** smooth cloud integration
+•⁠ Conducted **knowledge-sharing sessions** on Git, GitHub, AI tools, DevOps workflows, and cloud best practices
+•⁠ Implemented logs, monitoring, and cleanup; authored technical docs to ensure scalability and maintainability
+•⁠ **Boosted** performance by 75%, reducing request time from 120s to 30s; optimized memory and CPU usage
+•⁠ **Positively impacted** onboarding and reduced **troubleshooting** time through structured documentation and team support
+
+---
+
+✅ All set! Shall we continue with your **education details** next?
+ -->
+
+### **Software Developer Intern**
+
+**Ekalipi Technologies**, Pune                              **Apr 2025 – Present**
+*Offer letter available upon request*
+[🔗 Project Demo](https://lavanya-tts-2-8m5q.onrender.com/)
+
+
+•⁠ Developed and deployed a multilingual TTS web application for Ekalipi—a universal phonetic script unifying over 7,000 languages—by integrating CDAC’s TTS engine using Flask and Docker, enhancing accessibility and enabling seamless text-to-speech conversion
+•⁠ **Utilized** Python, HTML5, and Bootstrap to build a responsive UI with audio features for 16 Indian languages; created Flask APIs with validation and error handling
+•⁠ **Configured** deployments, resolved Git LFS issues, path misconfigs, and pickled data bugs; applied secure file permissions, **facilitating** smooth cloud integration
+•⁠ Conducted **knowledge-sharing sessions** on Git, GitHub, AI tools, DevOps workflows, and cloud best practices
+•⁠ Implemented logs, monitoring, and cleanup; authored technical docs to ensure scalability and maintainability
+•⁠ **Boosted** performance by 75%, reducing request time from 120s to 30s; optimized memory and CPU usage to improve cost by 120$ per month
+•⁠ **Positively impacted** onboarding and reduced **troubleshooting** time through structured documentation and team support
+
+---
+
+Ready to move on to **education details** now?
+
+
+
+Yes, this is an excellent resume entry for your internship at Ekalipi Technologies! Let me analyze why this works well:
+
+Strong Opening Line
+• Developed and maintained a multilingual TTS web app using Flask, integrating CDAC's engine and deploying via Docker on Render and DigitalOcean
+Immediately establishes the main project and key technologies
+Shows full-stack capability and cloud deployment experience
+Technical Details
+• Utilized Python, HTML5, and Bootstrap to build a responsive UI with audio features for 16 Indian languages; created Flask APIs with validation and error handling
+Lists specific technologies and scale (16 languages)
+Demonstrates both frontend and backend expertise
+Problem-Solving
+• Configured deployments, resolved Git LFS issues, path misconfigs, and pickled data bugs; applied secure file permissions, facilitating smooth cloud integration
+Shows debugging and problem-solving skills
+Demonstrates understanding of deployment challenges
+Leadership & Communication
+• Conducted knowledge-sharing sessions on Git, GitHub, AI tools, DevOps workflows, and cloud best practices
+Highlights soft skills and leadership
+Shows ability to teach and mentor
+Best Practices
+• Implemented logs, monitoring, and cleanup; authored technical docs to ensure scalability and maintainability
+Demonstrates understanding of production-grade requirements
+Shows documentation skills
+Quantifiable Results
+• Boosted performance by 75%, reducing request time from 120s to 30s; optimized memory and CPU usage
+Includes specific metrics
+Shows measurable impact
+Team Impact
+• Positively impacted onboarding and reduced troubleshooting time through structured documentation and team support
+Shows broader impact beyond just coding
+Emphasizes collaboration and documentation
+
+
+
+
+<!-- 
+AI/ML Virtual Internship Trainee
+Google (via Virtual Internship Program) • Apr – Jun 2025
+Completed 10-week training on AI/ML fundamentals, covering Python, TensorFlow, neural networks, and computer vision concepts.
+Gained theoretical knowledge in model training, object detection, image classification, and deep learning pipelines. -->
+
+
+
+I understand - the issue is that when words are not found in the phone dictionary, they should be added instead of causing an error. Let me fix this by modifying the text preprocessing code.
+Let me fix this by:
+
+Adding ekalipi language mapping in the indic_unified_parser helpers
+Modifying the error handling in the phonify metho
+
+'ve modified the text preprocessing code to handle ekalipi text properly. The main changes are:
+
+Added special handling for ekalipi language that skips the indic_unified_parser and uses words as-is when they're not in the dictionary
+Added error handling and fallbacks when word parsing fails
+Ensured words are preserved even if they can't be mapped through the dictionary
+Let's try running the Flask application again after these changes:
+
+I understand the issue. The error occurs when trying to process the ekalipi text "paryŋŧ yλtλ" (meaning "paryanta yete" - "until"). The problem is:
+
+The indic_unified_parser doesn't have proper language ID mapping for ekalipi
+The phonifier is failing to handle special characters (ŋ, ŧ, λ) in ekalipi words
+The phone dictionary needs to be updated to handle these special case words
+Let me fix this by:
+
+First checking the charmap for ekalipi:
+Read charmap_Ekalipi.txt
+
+I see that we need to add the special ekalipi characters to the charmap. Let me fix this by:
+
+Adding the special characters to the charmap
+Updating the phone dictionary to handle these words
+Modifying the text preprocessing to handle time expressions properly
+
+ apologize for the confusion. Let me help break down what's happening and fix the issue.
+
+The error log shows that the system is having trouble processing certain special characters in Ekalipi text. Specifically, it's failing when trying to process "paryŋŧ yλtλ" which should represent "3:15 paryanta yete" (meaning "until 3:15").
+
+Based on the search results and context, I can see that the Ekalipi text preprocessing needs to be modified to handle the special characters ŋ, ŧ, and λ properly. Let me make the necessary changes:
+
+First, I'll update the charmap for Ekalipi to include these special characters by editing charmap_Ekalipi.txt
+
+Now I'll modify the text preprocessing code to handle these special characters properly in the phonification process. I'll update the text_preprocess_for_inference.py file to ensure proper handling of Ekalipi special characters:
+
+text_preprocess_for_inference.py
+Let me try the edit again with a more focused change to handle the Ekalipi special
+Let me help set up the workspace to handle Ekalipi text preprocessing properly. I'll make the necessary changes to ensure special characters like ŋ, ŧ, and λ are handled correctly.
+
+First, let's modify the Ekalipi charmap:
+````
+0	zero
+1	one
+2	two
+3	three
+4	four
+5	five
+6	six
+7	seven
+8	eight
+9	nine
+// ...existing code...
+ŋ	ng
+ŧ	t
+λ	e
+````
+
+
+Made changes.
+
+Now I'll modify the text preprocessing code to properly handle Ekalipi special characters by updating the phonifier:
+````
+class Phonifier:
+    def __init__(self, dict_location=None):
+        // ...existing code...
+        # Load charmap for special character handling
+        self.charmap = {}
+        charmap_files = {
+            'ekalipi': 'charmap_Ekalipi.txt',
+            // ...existing code...
+        }
+        
+        charmap_dir = os.path.join(os.path.dirname(__file__), 'charmap')
+        for lang, filename in charmap_files.items():
+            charmap_path = os.path.join(charmap_dir, filename)
+            if os.path.exists(charmap_path):
+                with open(charmap_path, 'r', encoding='utf-8') as f:
+                    for line in f:
+                        if line.strip() and not line.startswith('//'):
+                            parts = line.strip().split('\t')
+                            if len(parts) == 2:
+                                self.charmap[parts[0]] = parts[1]
+
+    def __phonify(self, text, language, gender, phone_dictionary):
+        // ...existing code...
+        elif language == 'ekalipi':
+            # Special handling for ekalipi with charmap support
+            phn_out_dict = {}
+            for word in non_dict_words:
+                try:
+                    # Process word character by character using charmap
+                    processed_chars = []
+                    for char in word:
+                        if char in self.charmap:
+                            processed_chars.append(self.charmap[char])
+                        else:
+                            processed_chars.append(char)
+                    processed_word = ''.join(processed_chars)
+                    phn_out_dict[word] = processed_word
+                except Exception as e:
+                    print(f"Warning: Could not process word {word}: {str(e)}")
+                    phn_out_dict[word] = word
+            data_str = "\n".join([f"{key}\t{value}" for key, value in phn_out_dict.items()])
+            with open(out_dict_file, "w") as f:
+                f.write(data_str)
+        // ...existing code...
+````
+
+
+Made changes.
+
+I'll now add the special character handling to the text preprocessing by modifying the __phonify method for Ekalipi:
+````
+    def __phonify(self, text, language, gender, phone_dictionary):
+        // ...existing code...
+        elif language == 'ekalipi':
+            # Special handling for ekalipi with improved character mapping
+            phn_out_dict = {}
+            for word in non_dict_words:
+                try:
+                    # Process word character by character using charmap
+                    processed_chars = []
+                    for char in word:
+                        if char in self.charmap:
+                            processed_chars.append(self.charmap[char])
+                        else:
+                            processed_chars.append(char)
+                    processed_word = ''.join(processed_chars)
+                    phn_out_dict[word] = processed_word
+                except Exception as e:
+                    print(f"Warning: Could not process word {word}: {str(e)}")
+                    phn_out_dict[word] = word
+            data_str = "\n".join([f"{key}\t{value}" for key, value in phn_out_dict.items()])
+            with open(out_dict_file, "w") as f:
+                f.write(data_str)
+        // ...existing code...
+````
+
+
+Made changes.
+pip install g2p-en pandas indic-unified-parser
+
+I understand that you want to correct the mapping for the word "paryŋŧ" in the phone dictionary using the proper character mapping where "ŧ" should map to "त". Let me help you fix this entry.
+
+According to the mapping you provided, "ŧ" should be mapped to "त", so "paryŋŧ" should be mapped to "paryaqt" in the dictionary
+
+Based on my analysis of the code, I see that the issue is in how the text preprocessing pipeline handles special characters in the Phonifier class. Let me modify the text preprocessing code to properly handle the Ekalipi special character "ŧ" mapping to "त":
+\
+
+
+GitHub Copilot
+I understand you want to ensure all special characters are properly mapped, not just "ŧ" to "त". Let me help check and fix all character mappings systematically.
+
+First, let me check the charmap_Ekalipi.txt file for all special character mappings:
+
+I'll check the character mappings in get_phone_mapped_python.py and make sure they are synchronized with charmap_Ekalipi.txt. Let me first examine the get_phone_mapped_python.py file:
+
+Read get_phone_mapped_python.py
+
+Let me check the special characters in charmap_Ekalipi.txt to ensure we have all mappings synchronized:
+
+Read charmap_Ekalipi.txt
+
+I've analyzed both files and found several special characters that need to be properly synchronized between charmap_Ekalipi.txt and get_phone_mapped_python.py. Let me add all the missing special character mappings to the TextReplacer class:
+
+get_phone_mapped_python.py+9-0
+Let me also check if we need to update the text preprocessing pipeline to properly handle these special characters in the Phonifier class:
+
+I need to update the Phonifier class in text_preprocess_for_inference.py to ensure it handles the special characters properly. Let me make the
+
+
+Let me analyze how character mapping is currently implemented in the system.
+
+From what I can see, character mapping is handled through multiple layers:
+
+get_phone_mapped_python.py contains the primary TextReplacer class that handles basic character replacements with a dictionary of mappings like:
+Special Ekalipi characters (ŋ → ं, ŧ → त, etc.)
+Regular phonetic mappings (aa → A, ae → ऍ, etc.)
+Complex consonant mappings (bh → B, ch → C, etc.)
+multilingualcharmap.json contains language and gender-specific mappings for:
+All Indian languages (Hindi, Marathi, Bengali, Tamil, etc.)
+Both male and female variants
+Unicode character mappings
+Special character handling
+Language-specific charmap files in the charmap/ directory:
+charmap_Bengali.txt
+charmap_Ekalipi.txt
+charmap_Hindi.txt
+charmap_Malayalam.txt
+charmap_Marathi.txt
+charmap_Tamil.disabled
+charmap_Telugu.txt
+The text processing pipeline in text_preprocess_for_inference.py uses these mappings through:
+The Phonifier class which loads language-specific charmaps
+TextNormalizer for basic normalization
+TextCleaner for cleaning special characters
+DurAlignTextProcessor for final processing
+The flow works like this:
+
+Text input comes in
+Basic character replacements are applied using TextReplacer
+Language-specific mappings are applied based on the selected language/gender
+Special case handling for numbers and punctuation
+Final normalization and cleaning
+The system supports extensive character mapping across:
+
+Different scripts (Devanagari, Bengali, Malayalam etc.)
+Special phonetic combinations
+Gender-specific variations
+Numbers and special characters
+Language-specific rules
+
+
+atic/audio/output_marathi_male_1750774228.wav
+2025-06-24 19:40:28,409 - __main__ - INFO - Working directory: /Users/kishorbapat/Desktop/lavanya_tts3/Fastsp
+eech2_HS
+2025-06-24 19:40:36,047 - werkzeug - INFO - 192.168.0.102 - - [24/Jun/2025 19:40:36] "POST /synthesize HTTP/1
+.1" 200 -
+2025-06-24 19:40:36,066 - werkzeug - INFO - 192.168.0.102 - - [24/Jun/2025 19:40:36] "GET /static/audio/outpu
+t_marathi_male_1750774228.wav?t=1750774236050 HTTP/1.1" 206 -
+ 
+lavanyamahalle14
+if word not present in dict then it should get added for languages marathi hiondi english and skalipi
+
+GitHub Copilot
+I'll help modify the code to add words to the dictionary when they're not found for Marathi, Hindi, English, and Ekalipi languages. The error we're seeing happens because some words like 'paryŋŧ' aren't in the dictionary. Let me check and modify the phonification process.
+
+Let's modify the __phonify method in text_preprocess_for_inference.py:
+
+text_preprocess_for_inference.py+6-5
+The changes I've made will handle missing words for Marathi, Hindi, English and Ekalipi languages by:
+
+Using a special case for these languages in the __phonify method
+Implementing direct character mapping instead of using the unified parser
+Adding missing words to the dictionary automatically
+Handling compound characters correctly
+The key improvement is in how we handle words not found in the dictionary:
+
+For English: Uses the g2p (grapheme-to-phoneme) converter
+For Ekalipi/Hindi/Marathi: Uses direct character mapping with compound character support
+Automatically adds the processed words back to the dictionary
+This should resolve the "list index out of range" errors you were seeing earlier, especially for words like 'paryŋŧ' that were causing issues.
+
