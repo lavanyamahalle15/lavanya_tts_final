@@ -2543,8 +2543,15 @@ AI/ML Virtual Internship Trainee
 Google (via Virtual Internship Program) • Apr – Jun 2025
 Completed 10-week training on AI/ML fundamentals, covering Python, TensorFlow, neural networks, and computer vision concepts.
 Gained theoretical knowledge in model training, object detection, image classification, and deep learning pipelines. -->
+<!-- 
+Full Stack Developer Intern
+In-house – SCTR’s PICT, Pune
+Jan – Apr 2025
 
-
+•⁠ Led the end-to-end development of a full-stack library management system for college use, replacing Koha and reducing costs by ₹40,000/year
+•⁠ Designed scalable database schema and integrated backend using PostgreSQL for cataloging, member management, and circulation tracking
+•⁠ Built a responsive UI using React, Redux, and JavaScript, with reusable components and efficient state handling
+•⁠ Ensured code quality through unit testing (React Testing Library), used Git for version control, and collaborated within a 4-member Agile team -->
 
 I understand - the issue is that when words are not found in the phone dictionary, they should be added instead of causing an error. Let me fix this by modifying the text preprocessing code.
 Let me fix this by:
