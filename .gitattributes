@@ -1,9 +1,5 @@
-# .gitattributes
-# Track Marathi male TTS model files
+# Track only male model files for Marathi, Hindi, English, and Ekalipi
 Fastspeech2_HS/marathi/male/model/model.pth filter=lfs diff=lfs merge=lfs -text
-Fastspeech2_HS/marathi/male/model/config.yaml filter=lfs diff=lfs merge=lfs -text
-# Fastspeech2_HS/marathi/male/model/*.pth filter=lfs diff=lfs merge=lfs -text
 Fastspeech2_HS/english/male/model/model.pth filter=lfs diff=lfs merge=lfs -text
-Fastspeech2_HS/english/male/model/config.yaml filter=lfs diff=lfs merge=lfs -text
 Fastspeech2_HS/hindi/male/model/model.pth filter=lfs diff=lfs merge=lfs -text
-Fastspeech2_HS/hindi/male/model/config.yaml filter=lfs diff=lfs merge=lfs -text
+Fastspeech2_HS/ekalipi/male/model/model.pth filter=lfs diff=lfs merge=lfs -text
